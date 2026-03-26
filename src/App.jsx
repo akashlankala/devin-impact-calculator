@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import './App.css'
 import ImpactDashboard from './ImpactDashboard'
 
@@ -38,10 +38,10 @@ const COST_OPTIONS = [
 function SliderWithGreen({ value, onChange, min, max, label }) {
   const percent = ((value - min) / (max - min)) * 100
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-2">
-        <label className="text-sm font-medium text-white">{label}</label>
-        <span className="text-sm font-semibold text-white min-w-12 text-right">{value}</span>
+    <div style={{ marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <label style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>{label}</label>
+        <span style={{ fontSize: '14px', fontWeight: 500, color: '#F2F5FA', minWidth: '48px', textAlign: 'right' }}>{value}</span>
       </div>
       <input
         type="range"
@@ -50,7 +50,7 @@ function SliderWithGreen({ value, onChange, min, max, label }) {
         value={value}
         onChange={onChange}
         style={{
-          background: `linear-gradient(to right, #21C19A 0%, #21C19A ${percent}%, #333 ${percent}%, #333 100%)`,
+          background: `linear-gradient(to right, #21C19A 0%, #21C19A ${percent}%, #252836 ${percent}%, #252836 100%)`,
         }}
       />
     </div>
@@ -64,6 +64,15 @@ function App() {
   const [selectedChallenge, setSelectedChallenge] = useState('migrations')
   const [timeAllocation, setTimeAllocation] = useState([...CHALLENGE_DEFAULTS.migrations])
   const hasManuallyEdited = useRef(false)
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.body.style.setProperty('--mouse-x', `${e.clientX}px`)
+      document.body.style.setProperty('--mouse-y', `${e.clientY}px`)
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   const handleTimeChange = useCallback((index, value) => {
     hasManuallyEdited.current = true
@@ -84,171 +93,297 @@ function App() {
   const devinCanHelp = 100 - timeAllocation[5]
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0A0A0A' }}>
-      <div className="mx-auto px-6 py-16" style={{ maxWidth: '800px' }}>
+    <>
+      <div className="mouse-glow-overlay" />
+      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* SECTION 1 - HERO */}
-        <section className="text-center pt-12 pb-20">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight">
-            Devin Impact Calculator
-          </h1>
-          <p className="text-lg md:text-xl mx-auto" style={{ color: '#A0A0A0', maxWidth: '560px' }}>
-            See how much engineering time and budget Devin can give back to your team
-          </p>
-        </section>
+          {/* SECTION 1 - HERO */}
+          <section style={{ textAlign: 'center', paddingTop: '64px', paddingBottom: '40px' }}>
+            <h1 style={{
+              fontSize: '38px',
+              fontWeight: 400,
+              color: '#F2F5FA',
+              lineHeight: 1.15,
+              letterSpacing: '-0.02em',
+              marginBottom: '16px',
+            }}>
+              Devin Impact Calculator
+            </h1>
+            <p style={{
+              fontSize: '16px',
+              fontWeight: 400,
+              color: '#8A94A6',
+              lineHeight: 1.6,
+              maxWidth: '560px',
+              margin: '0 auto',
+            }}>
+              See how much engineering time and budget Devin can give back to your team
+            </p>
+          </section>
 
-        {/* SECTION 2 - YOUR TEAM */}
-        <section className="pb-16">
-          <h2 className="text-2xl font-bold text-white mb-8">About Your Team</h2>
+          {/* Divider */}
+          <div style={{ borderTop: '1px solid #252836', margin: '0 40px 40px 40px' }} />
 
-          <SliderWithGreen
-            label="How many engineers on your team?"
-            value={engineers}
-            onChange={(e) => setEngineers(Number(e.target.value))}
-            min={5}
-            max={200}
-          />
+          {/* SECTION 2 - YOUR TEAM */}
+          <section style={{
+            background: '#181B28',
+            border: '1px solid #252836',
+            borderRadius: '16px',
+            padding: '28px',
+            marginBottom: '56px',
+          }}>
+            <h2 style={{
+              fontSize: '22px',
+              fontWeight: 400,
+              color: '#F2F5FA',
+              letterSpacing: '-0.01em',
+              marginBottom: '24px',
+            }}>About Your Team</h2>
 
-          {/* Cost Dropdown */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-white mb-2">
-              Average fully-loaded engineer cost
-            </label>
-            <select
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg text-white text-sm font-medium border cursor-pointer"
-              style={{
-                backgroundColor: '#111111',
-                borderColor: '#1E1E1E',
-                outline: 'none',
-              }}
-            >
-              {COST_OPTIONS.map(opt => (
-                <option key={opt} value={opt} style={{ backgroundColor: '#111111' }}>{opt}</option>
-              ))}
-            </select>
-          </div>
+            <SliderWithGreen
+              label="How many engineers on your team?"
+              value={engineers}
+              onChange={(e) => setEngineers(Number(e.target.value))}
+              min={5}
+              max={200}
+            />
 
-          <SliderWithGreen
-            label="How many tickets are in your current backlog?"
-            value={backlog}
-            onChange={(e) => setBacklog(Number(e.target.value))}
-            min={0}
-            max={1000}
-          />
-
-          {/* Challenge Cards */}
-          <div className="mt-8">
-            <label className="block text-sm font-medium text-white mb-4">
-              What&apos;s your team&apos;s biggest challenge?
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {CHALLENGES.map(ch => {
-                const isSelected = selectedChallenge === ch.id
-                return (
-                  <button
-                    key={ch.id}
-                    onClick={() => handleChallengeSelect(ch.id)}
-                    className="flex-1 p-4 rounded-xl text-left transition-all duration-200 cursor-pointer"
-                    style={{
-                      backgroundColor: '#111111',
-                      border: `2px solid ${isSelected ? '#21C19A' : '#1E1E1E'}`,
-                      boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.15)' : 'none',
-                      minWidth: '140px',
-                    }}
-                  >
-                    <div className="text-2xl mb-2">{ch.emoji}</div>
-                    <div className="text-sm font-semibold text-white">{ch.title}</div>
-                    <div className="text-xs mt-1" style={{ color: '#A0A0A0' }}>{ch.subtitle}</div>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 3 - TIME ALLOCATION */}
-        <section className="pb-16">
-          <h2 className="text-2xl font-bold text-white mb-2">Where does your team&apos;s time go?</h2>
-          <p className="text-sm mb-8" style={{ color: '#A0A0A0' }}>
-            Estimate how your engineers spend their time across these categories
-          </p>
-
-          {TIME_LABELS.map((label, i) => {
-            const pct = timeAllocation[i]
-            return (
-              <div key={label} className="mb-5">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium text-white">{label}</label>
-                  <span className="text-sm font-semibold text-white min-w-10 text-right">{pct}%</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  value={pct}
-                  onChange={(e) => handleTimeChange(i, e.target.value)}
-                  style={{
-                    background: `linear-gradient(to right, #21C19A 0%, #21C19A ${pct}%, #333 ${pct}%, #333 100%)`,
-                  }}
-                />
-              </div>
-            )
-          })}
-
-          {/* Running Total */}
-          <div className="mt-6 pt-6" style={{ borderTop: '1px solid #1E1E1E' }}>
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-sm font-medium text-white">Total</span>
-              <span
-                className="text-sm font-bold"
-                style={{ color: total === 100 ? '#21C19A' : '#FF4444' }}
+            {/* Cost Dropdown */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 400,
+                color: '#BAD7F5',
+                marginBottom: '8px',
+              }}>
+                Average fully-loaded engineer cost
+              </label>
+              <select
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: 400,
+                  color: '#F2F5FA',
+                  backgroundColor: '#181B28',
+                  border: '1px solid #252836',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#21C19A' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = '#252836' }}
               >
-                {total}%
-                {total !== 100 && (
-                  <span className="text-xs font-normal ml-2" style={{ color: '#FF4444' }}>
-                    (should equal 100%)
-                  </span>
-                )}
-              </span>
+                {COST_OPTIONS.map(opt => (
+                  <option key={opt} value={opt} style={{ backgroundColor: '#181B28' }}>{opt}</option>
+                ))}
+              </select>
             </div>
 
-            <div
-              className="text-center text-2xl md:text-3xl font-bold py-6 px-4 rounded-xl"
-              style={{
-                color: '#21C19A',
-                backgroundColor: 'rgba(33, 193, 154, 0.06)',
-                border: '1px solid rgba(33, 193, 154, 0.15)',
-              }}
-            >
-              {devinCanHelp}% of your team&apos;s time is spent on work Devin can help with
-            </div>
-          </div>
-        </section>
+            <SliderWithGreen
+              label="How many tickets are in your current backlog?"
+              value={backlog}
+              onChange={(e) => setBacklog(Number(e.target.value))}
+              min={0}
+              max={1000}
+            />
 
-        {/* SECTION 4 - IMPACT REPORT */}
-        {total === 100 ? (
-          <ImpactDashboard
-            teamSize={engineers}
-            costBracket={cost}
-            timeAllocation={timeAllocation}
-          />
-        ) : (
-          <section className="pb-20">
-            <div
-              className="py-16 px-8 rounded-xl text-center"
-              style={{
-                border: '2px dashed #333333',
-                color: '#A0A0A0',
-              }}
-            >
-              <p className="text-lg">Adjust your time allocation to total 100% to see your impact report</p>
+            {/* Challenge Cards */}
+            <div style={{ marginTop: '24px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: 400,
+                color: '#BAD7F5',
+                marginBottom: '16px',
+              }}>
+                What&apos;s your team&apos;s biggest challenge?
+              </label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                {CHALLENGES.map(ch => {
+                  const isSelected = selectedChallenge === ch.id
+                  return (
+                    <button
+                      key={ch.id}
+                      onClick={() => handleChallengeSelect(ch.id)}
+                      style={{
+                        flex: '1 1 140px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        backgroundColor: '#181B28',
+                        border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
+                        boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.08)' : 'none',
+                        minWidth: '140px',
+                      }}
+                      onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.borderColor = '#363A4D' }}
+                      onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.borderColor = '#252836' }}
+                    >
+                      <div style={{ fontSize: '20px', marginBottom: '8px' }}>{ch.emoji}</div>
+                      <div style={{ fontSize: '14px', fontWeight: 400, color: '#F2F5FA' }}>{ch.title}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 400, color: '#8A94A6', lineHeight: 1.4, marginTop: '4px' }}>{ch.subtitle}</div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </section>
-        )}
+
+          {/* SECTION 3 - TIME ALLOCATION */}
+          <section style={{
+            background: '#181B28',
+            border: '1px solid #252836',
+            borderRadius: '16px',
+            padding: '28px',
+            marginBottom: '56px',
+          }}>
+            <h2 style={{
+              fontSize: '22px',
+              fontWeight: 400,
+              color: '#F2F5FA',
+              letterSpacing: '-0.01em',
+              marginBottom: '8px',
+            }}>Where does your team&apos;s time go?</h2>
+            <p style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6', marginBottom: '24px' }}>
+              Estimate how your engineers spend their time across these categories
+            </p>
+
+            {TIME_LABELS.map((label, i) => {
+              const pct = timeAllocation[i]
+              return (
+                <div key={label} style={{ marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>{label}</label>
+                    <span style={{ fontSize: '14px', fontWeight: 500, color: '#F2F5FA', minWidth: '40px', textAlign: 'right' }}>{pct}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={pct}
+                    onChange={(e) => handleTimeChange(i, e.target.value)}
+                    style={{
+                      background: `linear-gradient(to right, #21C19A 0%, #21C19A ${pct}%, #252836 ${pct}%, #252836 100%)`,
+                    }}
+                  />
+                </div>
+              )
+            })}
+
+            {/* Running Total */}
+            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #252836' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>Total</span>
+                <span style={{ fontSize: '14px', fontWeight: 500, color: total === 100 ? '#21C19A' : '#FF6B6B' }}>
+                  {total}%
+                  {total !== 100 && (
+                    <span style={{ fontSize: '13px', fontWeight: 400, marginLeft: '8px', color: '#8A94A6' }}>
+                      (should equal 100%)
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              {/* Devin-Eligible Banner */}
+              <div style={{
+                background: '#181B28',
+                borderLeft: '3px solid #21C19A',
+                borderRadius: '12px',
+                padding: '20px 24px',
+              }}>
+                <span style={{ fontSize: '22px', fontWeight: 500, color: '#21C19A' }}>{devinCanHelp}%</span>
+                <span style={{ fontSize: '15px', fontWeight: 400, color: '#BAD7F5', marginLeft: '8px' }}>
+                  of your team&apos;s time is spent on work Devin can help with
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 4 - IMPACT REPORT */}
+          {total === 100 ? (
+            <ImpactDashboard
+              teamSize={engineers}
+              costBracket={cost}
+              timeAllocation={timeAllocation}
+            />
+          ) : (
+            <section style={{ marginBottom: '56px' }}>
+              <div style={{
+                padding: '48px 32px',
+                borderRadius: '16px',
+                textAlign: 'center',
+                border: '2px dashed #252836',
+                color: '#8A94A6',
+              }}>
+                <p style={{ fontSize: '16px', fontWeight: 400 }}>Adjust your time allocation to total 100% to see your impact report</p>
+              </div>
+            </section>
+          )}
+
+          {/* CTA SECTION */}
+          <section style={{ textAlign: 'center', marginTop: '56px', marginBottom: '32px' }}>
+            <p style={{ fontSize: '18px', fontWeight: 400, color: '#F2F5FA', marginBottom: '32px' }}>
+              Ready to see these results for your team?
+            </p>
+            <a
+              href="https://app.devin.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-block',
+                fontSize: '14px',
+                fontWeight: 500,
+                color: '#10131C',
+                backgroundColor: '#21C19A',
+                borderRadius: '999px',
+                padding: '12px 28px',
+                textDecoration: 'none',
+                transition: 'background-color 0.2s ease',
+                marginBottom: '32px',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+            >
+              Get started with Devin
+            </a>
+            <div>
+              <a
+                href="https://devin.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: '13px',
+                  color: '#8A94A6',
+                  textDecoration: 'none',
+                  transition: 'text-decoration 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+              >
+                Learn more at devin.ai
+              </a>
+            </div>
+          </section>
+
+          {/* FOOTER NOTE */}
+          <div style={{
+            textAlign: 'center',
+            fontSize: '11px',
+            color: '#555E70',
+            paddingBottom: '40px',
+            marginTop: '32px',
+          }}>
+            Built with Devin &middot; Not affiliated with Cognition
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
