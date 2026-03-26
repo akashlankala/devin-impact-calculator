@@ -6,12 +6,13 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #10131C;
-  background-image:
-    radial-gradient(ellipse at 20% 0%, rgba(73, 145, 229, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(33, 193, 154, 0.04) 0%, transparent 60%);
   color: #BAD7F5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -31,8 +32,40 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
   background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(73, 145, 229, 0.05), transparent 60%);
+}
+
+/* Static gradient overlay */
+.static-gradient-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(73, 145, 229, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(33, 193, 154, 0.04) 0%, transparent 60%);
+}
+
+/* Floating characters overlay */
+.floating-chars-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.floating-char {
+  position: absolute;
+  font-family: 'Courier New', monospace;
+  color: rgba(73, 145, 229, 0.04);
+  user-select: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.03; }
+  50% { transform: translateY(-15px) rotate(5deg); opacity: 0.06; }
 }
 
 /* Gradient text utility */
@@ -65,6 +98,32 @@ body {
 
 .cta-pulse {
   animation: subtlePulse 3s ease-in-out infinite;
+}
+
+/* Scroll indicator bounce */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+.scroll-indicator {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+/* Stats ticker */
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+.ticker-track {
+  display: flex;
+  animation: tickerScroll 35s linear infinite;
+  width: max-content;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
 }
 
 /* Nav link hover */
@@ -141,4 +200,128 @@ select {
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
+}
+
+/* Zone backgrounds */
+.zone-hero {
+  background-color: #10131C;
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zone-ticker {
+  background-color: #181B28;
+  border-top: 1px solid #252836;
+  border-bottom: 1px solid #252836;
+  padding: 16px 0;
+  overflow: hidden;
+}
+
+.zone-configure {
+  background-color: #10131C;
+  padding: 80px 24px 64px;
+}
+
+.zone-time {
+  background-color: #141825;
+  border-top: 1px solid #252836;
+  padding: 80px 24px 64px;
+}
+
+.zone-results {
+  background-color: #10131C;
+  border-top: 1px solid #252836;
+  padding: 80px 24px 64px;
+}
+
+.zone-analysis {
+  background-color: #141825;
+  border-top: 1px solid #252836;
+  padding: 64px 24px;
+}
+
+.zone-recommendation {
+  background-color: #10131C;
+  border-top: 1px solid #252836;
+  padding: 64px 24px;
+}
+
+.zone-cta {
+  background-color: #181B28;
+  border-top: 1px solid #252836;
+  padding: 80px 24px 40px;
+}
+
+/* Two-column layouts */
+.two-col-configure {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.two-col-time {
+  display: grid;
+  grid-template-columns: 58% 42%;
+  gap: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.two-col-recommendation {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .two-col-configure,
+  .two-col-time,
+  .two-col-recommendation {
+    grid-template-columns: 1fr;
+  }
+
+  .zone-hero {
+    min-height: auto;
+    padding: 60px 24px;
+  }
+
+  .zone-configure,
+  .zone-time,
+  .zone-results,
+  .zone-analysis,
+  .zone-recommendation {
+    padding: 48px 16px;
+  }
+
+  .zone-cta {
+    padding: 48px 16px 24px;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .challenge-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Challenge cards grid */
+.challenge-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Ring chart animation */
+.ring-progress {
+  transition: stroke-dashoffset 0.5s ease;
 }

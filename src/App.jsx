@@ -35,6 +35,62 @@ const COST_OPTIONS = [
   '$200K+',
 ]
 
+const FLOATING_CHARS = [
+  { char: '{', top: '5%', left: '3%', size: 22, duration: 18 },
+  { char: '}', top: '12%', left: '92%', size: 26, duration: 22 },
+  { char: '<', top: '20%', left: '8%', size: 16, duration: 25 },
+  { char: '/>', top: '28%', left: '88%', size: 20, duration: 19 },
+  { char: '(', top: '35%', left: '5%', size: 24, duration: 28 },
+  { char: ')', top: '42%', left: '95%', size: 18, duration: 16 },
+  { char: ';', top: '50%', left: '2%', size: 14, duration: 23 },
+  { char: '=', top: '58%', left: '90%', size: 22, duration: 20 },
+  { char: '*', top: '65%', left: '7%', size: 28, duration: 27 },
+  { char: '//', top: '72%', left: '93%', size: 16, duration: 17 },
+  { char: '\u2192', top: '78%', left: '4%', size: 20, duration: 24 },
+  { char: '::', top: '85%', left: '91%', size: 18, duration: 21 },
+  { char: '[', top: '15%', left: '50%', size: 14, duration: 26 },
+  { char: ']', top: '90%', left: '45%', size: 16, duration: 15 },
+  { char: '0', top: '8%', left: '70%', size: 20, duration: 29 },
+  { char: '1', top: '45%', left: '15%', size: 18, duration: 22 },
+  { char: '</', top: '60%', left: '80%', size: 14, duration: 18 },
+  { char: '{}', top: '38%', left: '55%', size: 16, duration: 30 },
+  { char: '>', top: '75%', left: '30%', size: 22, duration: 20 },
+  { char: '()', top: '25%', left: '40%', size: 14, duration: 25 },
+]
+
+const TICKER_ITEMS = [
+  { number: '8-12x', desc: 'migration efficiency (Nubank)' },
+  { number: '20x', desc: 'cost savings vs. human engineers' },
+  { number: '93%', desc: 'faster regression cycles (Litera)' },
+  { number: '1,583', desc: 'PRs merged by Devin (Gumroad)' },
+  { number: '85%', desc: 'Devin PR merge rate' },
+  { number: '10,000+', desc: 'hours saved annually' },
+  { number: '4x', desc: 'faster YoY' },
+  { number: '$9/hr', desc: 'effective Devin cost' },
+]
+
+function FloatingCharacters() {
+  return (
+    <div className="floating-chars-overlay">
+      {FLOATING_CHARS.map((item, i) => (
+        <span
+          key={i}
+          className="floating-char"
+          style={{
+            top: item.top,
+            left: item.left,
+            fontSize: `${item.size}px`,
+            animation: `float ${item.duration}s ease-in-out infinite`,
+            animationDelay: `${i * 0.7}s`,
+          }}
+        >
+          {item.char}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 function NavBar() {
   return (
     <nav style={{
@@ -52,7 +108,6 @@ function NavBar() {
       justifyContent: 'space-between',
       padding: '0 24px',
     }}>
-      {/* Left: Logo */}
       <a
         href="https://devin.ai/"
         target="_blank"
@@ -70,8 +125,6 @@ function NavBar() {
         <span style={{ color: '#21C19A', fontSize: '10px' }}>{'\u25CF'}</span>
         devin
       </a>
-
-      {/* Center: Nav links */}
       <div className="nav-center" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
         <a href="https://devin.ai/" target="_blank" rel="noopener noreferrer" className="nav-link">Home</a>
         <a href="https://devin.ai/enterprise" target="_blank" rel="noopener noreferrer" className="nav-link">Enterprise</a>
@@ -79,17 +132,8 @@ function NavBar() {
         <a href="https://devin.ai/customers" target="_blank" rel="noopener noreferrer" className="nav-link">Customers</a>
         <a href="#" className="nav-link nav-link-active">Impact Calculator</a>
       </div>
-
-      {/* Right: Buttons */}
       <div className="nav-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <a
-          href="https://app.devin.ai/login"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="nav-link"
-        >
-          Login
-        </a>
+        <a href="https://app.devin.ai/login" target="_blank" rel="noopener noreferrer" className="nav-link">Login</a>
         <a
           href="https://app.devin.ai/"
           target="_blank"
@@ -118,7 +162,7 @@ function NavBar() {
 function SliderWithGreen({ value, onChange, min, max, label }) {
   const percent = ((value - min) / (max - min)) * 100
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div style={{ marginBottom: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
         <label style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>{label}</label>
         <span style={{ fontSize: '14px', fontWeight: 500, color: '#F2F5FA', minWidth: '48px', textAlign: 'right' }}>{value}</span>
@@ -133,6 +177,57 @@ function SliderWithGreen({ value, onChange, min, max, label }) {
           background: `linear-gradient(to right, #21C19A 0%, #21C19A ${percent}%, #252836 ${percent}%, #252836 100%)`,
         }}
       />
+    </div>
+  )
+}
+
+function StatsTicker() {
+  const items = [...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS]
+  return (
+    <div className="zone-ticker">
+      <div className="ticker-track">
+        {items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '48px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '15px', fontWeight: 500, color: '#21C19A' }}>{item.number}</span>
+            <span style={{ fontSize: '14px', color: '#8A94A6' }}>{item.desc}</span>
+            <span style={{ color: '#555E70', marginLeft: '40px' }}>{'\u00B7'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RingChart({ percent }) {
+  const radius = 100
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference * (1 - percent / 100)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'relative', width: '220px', height: '220px' }}>
+        <svg width="220" height="220" viewBox="0 0 220 220">
+          <circle cx="110" cy="110" r={radius} fill="none" stroke="#252836" strokeWidth="8" />
+          <circle
+            cx="110" cy="110" r={radius} fill="none" stroke="#21C19A" strokeWidth="8"
+            strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
+            className="ring-progress"
+            style={{ transform: 'rotate(-90deg)', transformOrigin: '110px 110px' }}
+          />
+        </svg>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+          <div className="gradient-text-green-cyan" style={{ fontSize: '48px', fontWeight: 500, lineHeight: 1 }}>
+            {percent}%
+          </div>
+          <div style={{ fontSize: '13px', color: '#8A94A6', marginTop: '4px' }}>Devin-eligible</div>
+        </div>
+      </div>
+      <p style={{ fontSize: '14px', color: '#BAD7F5', textAlign: 'center', maxWidth: '220px', marginTop: '20px' }}>
+        of your team&apos;s time is spent on work Devin can handle
+      </p>
+      <p style={{ fontSize: '12px', color: '#555E70', textAlign: 'center', maxWidth: '250px', marginTop: '16px' }}>
+        Categories 1-5 are automatable. Only new feature development requires human creativity.
+      </p>
     </div>
   )
 }
@@ -172,119 +267,103 @@ function App() {
   const total = timeAllocation.reduce((sum, v) => sum + v, 0)
   const devinCanHelp = 100 - timeAllocation[5]
 
+  const scrollToConfigure = () => {
+    const el = document.getElementById('zone-configure')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <>
+      <FloatingCharacters />
+      <div className="static-gradient-overlay" />
       <div className="mouse-glow-overlay" />
-      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
+      <div style={{ position: 'relative', zIndex: 3 }}>
         <NavBar />
-        <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 24px' }}>
 
-          {/* SECTION 1 - HERO */}
-          <section style={{ textAlign: 'center', paddingTop: '80px', paddingBottom: '40px' }}>
-            <h1 style={{
-              fontSize: '38px',
-              fontWeight: 400,
-              color: '#F2F5FA',
-              lineHeight: 1.15,
-              letterSpacing: '-0.02em',
-              marginBottom: '16px',
+        {/* ZONE 1: HERO */}
+        <section className="zone-hero">
+          <div style={{ textAlign: 'center', maxWidth: '700px', padding: '0 24px' }}>
+            <div style={{
+              display: 'inline-block', backgroundColor: '#181B28', border: '1px solid #252836',
+              borderRadius: '999px', padding: '6px 16px', fontSize: '11px', textTransform: 'uppercase',
+              letterSpacing: '0.12em', color: '#8A94A6', marginBottom: '24px',
             }}>
-              Devin <span className="gradient-text-blue-green">Impact</span> Calculator
+              FOR ENGINEERING LEADERS
+            </div>
+            <h1 style={{ fontSize: '56px', fontWeight: 400, color: '#F2F5FA', lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '16px' }}>
+              Devin <span className="gradient-text-blue-green">Impact</span>
             </h1>
-            <p style={{
-              fontSize: '16px',
-              fontWeight: 400,
-              color: '#8A94A6',
-              lineHeight: 1.6,
-              maxWidth: '560px',
-              margin: '0 auto',
-            }}>
+            <p style={{ fontSize: '18px', fontWeight: 400, color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
               See how much engineering time and budget Devin can give back to your team
             </p>
-          </section>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '40px' }}>
+              {['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'].map(badge => (
+                <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
+                  {badge}
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={scrollToConfigure}
+              className="cta-pulse"
+              style={{
+                display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
+                border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '48px',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+            >
+              Calculate your impact {'\u2193'}
+            </button>
+            <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
+              {'\u2228'}
+            </div>
+          </div>
+        </section>
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid #252836', margin: '0 40px 40px 40px' }} />
+        {/* ZONE 2: STATS TICKER */}
+        <StatsTicker />
 
-          {/* SECTION 2 - YOUR TEAM */}
-          <section style={{
-            background: '#181B28',
-            border: '1px solid #252836',
-            borderRadius: '16px',
-            padding: '28px',
-            marginBottom: '56px',
-          }}>
-            <h2 style={{
-              fontSize: '22px',
-              fontWeight: 400,
-              color: '#F2F5FA',
-              letterSpacing: '-0.01em',
-              marginBottom: '24px',
-            }}>About Your Team</h2>
+        {/* ZONE 3: CONFIGURE YOUR TEAM */}
+        <section className="zone-configure" id="zone-configure">
+          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8A94A6', marginBottom: '12px' }}>CONFIGURE</div>
+            <h2 style={{ fontSize: '30px', fontWeight: 400, color: '#F2F5FA', marginBottom: '12px' }}>
+              Tell us about your team
+            </h2>
+            <p style={{ fontSize: '14px', color: '#8A94A6' }}>
+              We&apos;ll use this to calculate your team&apos;s potential with Devin
+            </p>
+          </div>
 
-            <SliderWithGreen
-              label="How many engineers on your team?"
-              value={engineers}
-              onChange={(e) => setEngineers(Number(e.target.value))}
-              min={5}
-              max={200}
-            />
-
-            {/* Cost Dropdown */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#BAD7F5',
-                marginBottom: '8px',
-              }}>
-                Average fully-loaded engineer cost
-              </label>
-              <select
-                value={cost}
-                onChange={(e) => setCost(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 400,
-                  color: '#F2F5FA',
-                  backgroundColor: '#181B28',
-                  border: '1px solid #252836',
-                  outline: 'none',
-                  cursor: 'pointer',
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#21C19A' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#252836' }}
-              >
-                {COST_OPTIONS.map(opt => (
-                  <option key={opt} value={opt} style={{ backgroundColor: '#181B28' }}>{opt}</option>
-                ))}
-              </select>
+          <div className="two-col-configure">
+            <div style={{ backgroundColor: '#181B28', border: '1px solid #252836', borderRadius: '16px', padding: '28px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 400, color: '#F2F5FA', marginBottom: '24px' }}>Team Profile</h3>
+              <SliderWithGreen label="How many engineers on your team?" value={engineers} onChange={(e) => setEngineers(Number(e.target.value))} min={5} max={200} />
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 400, color: '#BAD7F5', marginBottom: '8px' }}>
+                  Average fully-loaded engineer cost
+                </label>
+                <select
+                  value={cost} onChange={(e) => setCost(e.target.value)}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', fontSize: '14px', fontWeight: 400, color: '#F2F5FA', backgroundColor: '#181B28', border: '1px solid #252836', outline: 'none', cursor: 'pointer' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = '#21C19A' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = '#252836' }}
+                >
+                  {COST_OPTIONS.map(opt => (
+                    <option key={opt} value={opt} style={{ backgroundColor: '#181B28' }}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+              <SliderWithGreen label="How many tickets are in your current backlog?" value={backlog} onChange={(e) => setBacklog(Number(e.target.value))} min={0} max={1000} />
             </div>
 
-            <SliderWithGreen
-              label="How many tickets are in your current backlog?"
-              value={backlog}
-              onChange={(e) => setBacklog(Number(e.target.value))}
-              min={0}
-              max={1000}
-            />
-
-            {/* Challenge Cards */}
-            <div style={{ marginTop: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#BAD7F5',
-                marginBottom: '16px',
-              }}>
-                What&apos;s your team&apos;s biggest challenge?
-              </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: 400, color: '#F2F5FA', marginBottom: '16px' }}>
+                What&apos;s your biggest challenge?
+              </h3>
+              <div className="challenge-grid">
                 {CHALLENGES.map(ch => {
                   const isSelected = selectedChallenge === ch.id
                   return (
@@ -292,19 +371,13 @@ function App() {
                       key={ch.id}
                       onClick={() => handleChallengeSelect(ch.id)}
                       style={{
-                        flex: '1 1 140px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        backgroundColor: '#181B28',
+                        padding: '16px', borderRadius: '12px', textAlign: 'left', cursor: 'pointer',
+                        transition: 'all 0.2s ease', backgroundColor: '#181B28',
                         border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
                         boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.08)' : 'none',
-                        minWidth: '140px',
                       }}
                       onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.borderColor = '#363A4D' }}
-                      onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.borderColor = '#252836' }}
+                      onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.borderColor = isSelected ? '#21C19A' : '#252836' }}
                     >
                       <div style={{ fontSize: '20px', marginBottom: '8px' }}>{ch.emoji}</div>
                       <div style={{ fontSize: '14px', fontWeight: 400, color: '#F2F5FA' }}>{ch.title}</div>
@@ -314,156 +387,102 @@ function App() {
                 })}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* SECTION 3 - TIME ALLOCATION */}
-          <section style={{
-            background: '#181B28',
-            border: '1px solid #252836',
-            borderRadius: '16px',
-            padding: '28px',
-            marginBottom: '56px',
-          }}>
-            <h2 style={{
-              fontSize: '22px',
-              fontWeight: 400,
-              color: '#F2F5FA',
-              letterSpacing: '-0.01em',
-              marginBottom: '8px',
-            }}>Where does your team&apos;s time go?</h2>
-            <p style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6', marginBottom: '24px' }}>
-              Estimate how your engineers spend their time across these categories
-            </p>
+        {/* ZONE 4: TIME ALLOCATION */}
+        <section className="zone-time" id="zone-time">
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8A94A6', marginBottom: '12px' }}>ESTIMATE</div>
+            <h2 style={{ fontSize: '30px', fontWeight: 400, color: '#F2F5FA' }}>
+              Where does your team&apos;s time go?
+            </h2>
+          </div>
 
-            {TIME_LABELS.map((label, i) => {
-              const pct = timeAllocation[i]
-              return (
-                <div key={label} style={{ marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>{label}</label>
-                    <span style={{ fontSize: '14px', fontWeight: 500, color: '#F2F5FA', minWidth: '40px', textAlign: 'right' }}>{pct}%</span>
+          <div className="two-col-time">
+            <div style={{ backgroundColor: '#181B28', border: '1px solid #252836', borderRadius: '16px', padding: '28px' }}>
+              {TIME_LABELS.map((label, i) => {
+                const pct = timeAllocation[i]
+                return (
+                  <div key={label} style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>{label}</label>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: '#F2F5FA', minWidth: '40px', textAlign: 'right' }}>{pct}%</span>
+                    </div>
+                    <input
+                      type="range" min={0} max={100} value={pct}
+                      onChange={(e) => handleTimeChange(i, e.target.value)}
+                      style={{ background: `linear-gradient(to right, #21C19A 0%, #21C19A ${pct}%, #252836 ${pct}%, #252836 100%)` }}
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={pct}
-                    onChange={(e) => handleTimeChange(i, e.target.value)}
-                    style={{
-                      background: `linear-gradient(to right, #21C19A 0%, #21C19A ${pct}%, #252836 ${pct}%, #252836 100%)`,
-                    }}
-                  />
+                )
+              })}
+              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #252836' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>Total</span>
+                  <span style={{ fontSize: '14px', fontWeight: 500, color: total === 100 ? '#21C19A' : '#FF6B6B' }}>
+                    {total}%
+                    {total !== 100 && (
+                      <span style={{ fontSize: '13px', fontWeight: 400, marginLeft: '8px', color: '#8A94A6' }}>
+                        (should equal 100%)
+                      </span>
+                    )}
+                  </span>
                 </div>
-              )
-            })}
-
-            {/* Running Total */}
-            <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #252836' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5' }}>Total</span>
-                <span style={{ fontSize: '14px', fontWeight: 500, color: total === 100 ? '#21C19A' : '#FF6B6B' }}>
-                  {total}%
-                  {total !== 100 && (
-                    <span style={{ fontSize: '13px', fontWeight: 400, marginLeft: '8px', color: '#8A94A6' }}>
-                      (should equal 100%)
-                    </span>
-                  )}
-                </span>
-              </div>
-
-              {/* Devin-Eligible Banner */}
-              <div style={{
-                background: '#181B28',
-                borderLeft: '3px solid #21C19A',
-                borderRadius: '12px',
-                padding: '20px 24px',
-              }}>
-                <span className="gradient-text-green-teal" style={{ fontSize: '22px', fontWeight: 500 }}>{devinCanHelp}%</span>
-                <span style={{ fontSize: '15px', fontWeight: 400, color: '#BAD7F5', marginLeft: '8px' }}>
-                  of your team&apos;s time is spent on work Devin can help with
-                </span>
               </div>
             </div>
+
+            <RingChart percent={devinCanHelp} />
+          </div>
+        </section>
+
+        {/* ZONES 5-7: IMPACT REPORT */}
+        {total === 100 ? (
+          <ImpactDashboard teamSize={engineers} costBracket={cost} timeAllocation={timeAllocation} />
+        ) : (
+          <section className="zone-results">
+            <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '48px 32px', borderRadius: '16px', textAlign: 'center', border: '2px dashed #252836', color: '#8A94A6' }}>
+              <p style={{ fontSize: '16px', fontWeight: 400 }}>Adjust your time allocation to total 100% to see your impact report</p>
+            </div>
           </section>
+        )}
 
-          {/* SECTION 4 - IMPACT REPORT */}
-          {total === 100 ? (
-            <ImpactDashboard
-              teamSize={engineers}
-              costBracket={cost}
-              timeAllocation={timeAllocation}
-            />
-          ) : (
-            <section style={{ marginBottom: '56px' }}>
-              <div style={{
-                padding: '48px 32px',
-                borderRadius: '16px',
-                textAlign: 'center',
-                border: '2px dashed #252836',
-                color: '#8A94A6',
-              }}>
-                <p style={{ fontSize: '16px', fontWeight: 400 }}>Adjust your time allocation to total 100% to see your impact report</p>
-              </div>
-            </section>
-          )}
-
-          {/* CTA SECTION */}
-          <section style={{ textAlign: 'center', marginTop: '56px', marginBottom: '32px' }}>
-            <p style={{ fontSize: '18px', fontWeight: 400, color: '#F2F5FA', marginBottom: '32px' }}>
-              Ready to see these results for your team?
+        {/* ZONE 8: CTA + FOOTER */}
+        <section className="zone-cta">
+          <div style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 400, color: '#F2F5FA', marginBottom: '8px' }}>
+              Ready to see these results?
+            </h2>
+            <p style={{ fontSize: '15px', color: '#8A94A6', marginBottom: '32px' }}>
+              Join engineering teams at Nubank, Gumroad, Ramp, and Ita{'\u00FA'}
             </p>
             <a
-              href="https://app.devin.ai/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cta-pulse"
+              href="https://app.devin.ai/" target="_blank" rel="noopener noreferrer" className="cta-pulse"
               style={{
-                display: 'inline-block',
-                fontSize: '14px',
-                fontWeight: 500,
-                color: '#10131C',
-                backgroundColor: '#21C19A',
-                borderRadius: '999px',
-                padding: '12px 28px',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s ease',
-                marginBottom: '32px',
+                display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
+                textDecoration: 'none', transition: 'background-color 0.2s ease',
               }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
             >
               Get started with Devin
             </a>
-            <div>
+            <div style={{ marginTop: '16px' }}>
               <a
-                href="https://devin.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  fontSize: '13px',
-                  color: '#8A94A6',
-                  textDecoration: 'none',
-                  transition: 'text-decoration 0.2s ease',
-                }}
+                href="https://devin.ai" target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: '13px', color: '#8A94A6', textDecoration: 'none', transition: 'text-decoration 0.2s ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
                 onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
               >
                 Learn more at devin.ai
               </a>
             </div>
-          </section>
+          </div>
 
-          {/* FOOTER */}
-          <footer style={{ paddingBottom: '40px', marginTop: '32px' }}>
+          <div style={{ maxWidth: '600px', margin: '0 auto', marginTop: '64px' }}>
             <div style={{ borderTop: '1px solid #252836', marginBottom: '24px' }} />
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '12px',
-              marginBottom: '16px',
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
               <div style={{ fontSize: '12px', color: '#555E70' }}>
                 <a href="https://cognition.ai/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>Privacy policy</a>
                 {' \u00B7 '}
@@ -472,14 +491,14 @@ function App() {
               <div style={{ fontSize: '12px', color: '#555E70' }}>
                 <a href="https://linkedin.com/company/cognition-ai-labs/" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>LinkedIn</a>
                 {' \u00B7 '}
-                <a href="https://x.com/cognition" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>X (Twitter)</a>
+                <a href="https://x.com/cognition" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>X</a>
               </div>
             </div>
-            <div style={{ textAlign: 'center', fontSize: '11px', color: '#555E70' }}>
-              Built with Devin &middot; Not affiliated with Cognition
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#555E70', paddingBottom: '32px' }}>
+              Built with Devin {'\u00B7'} Not affiliated with Cognition
             </div>
-          </footer>
-        </div>
+          </div>
+        </section>
       </div>
     </>
   )

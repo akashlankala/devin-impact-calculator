@@ -86,19 +86,19 @@ function MetricCard({ icon, value, suffix, label, sublabel, decimals = 0, prefix
         backgroundColor: '#181B28',
         border: '1px solid #252836',
         borderRadius: '16px',
-        padding: '24px',
+        padding: '32px',
         transition: 'border-color 0.2s ease',
         cursor: 'default',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#363A4D' }}
       onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#252836' }}
     >
-      <div style={{ fontSize: '20px', marginBottom: '12px' }}>{icon}</div>
+      <div style={{ fontSize: '24px', marginBottom: '16px' }}>{icon}</div>
       <div
         ref={numberRef}
         className="gradient-text-green-cyan"
         style={{
-          fontSize: '28px',
+          fontSize: '36px',
           fontWeight: 500,
           marginBottom: '4px',
           transition: 'opacity 0.3s ease',
@@ -106,9 +106,9 @@ function MetricCard({ icon, value, suffix, label, sublabel, decimals = 0, prefix
       >
         <span ref={countUpRef} />
       </div>
-      <div style={{ fontSize: '13px', fontWeight: 400, color: '#8A94A6', marginTop: '4px' }}>{label}</div>
+      <div style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6', marginTop: '8px' }}>{label}</div>
       {sublabel && (
-        <div style={{ fontSize: '11px', color: '#555E70', marginTop: '4px' }}>{sublabel}</div>
+        <div style={{ fontSize: '12px', color: '#555E70', marginTop: '4px' }}>{sublabel}</div>
       )}
     </div>
   )
@@ -376,182 +376,217 @@ export default function ImpactDashboard({ teamSize, costBracket, timeAllocation 
   }, [categoryData])
 
   return (
-    <section style={{ marginBottom: '56px' }}>
-      {/* Section Heading */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <div style={{
-          fontSize: '13px',
-          fontWeight: 400,
-          color: '#8A94A6',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: '8px',
-        }}>RESULTS</div>
-        <h2 style={{
-          fontSize: '22px',
-          fontWeight: 400,
-          color: '#F2F5FA',
-          letterSpacing: '-0.01em',
-          marginBottom: '8px',
-        }}>Your <span className="gradient-text-blue-green">Impact Report</span></h2>
-        <p style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6' }}>
-          Based on real efficiency data from Devin enterprise deployments
-        </p>
-      </div>
-
-      {/* 2x2 Metric Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '16px',
-        marginBottom: '56px',
-      }}>
-        <MetricCard
-          icon={"\u23F1\uFE0F"}
-          value={Math.round(totals.totalHoursReclaimed)}
-          suffix=" hrs/mo"
-          label="Hours Reclaimed Per Month"
-        />
-        <MetricCard
-          icon={"\uD83D\uDCB0"}
-          value={Math.round(totals.annualSavings)}
-          prefix="$"
-          label="Annual Cost Savings"
-        />
-        <MetricCard
-          icon={"\uD83D\uDC69\u200D\uD83D\uDCBB"}
-          value={parseFloat(totals.capacityUnlocked.toFixed(1))}
-          suffix=" engineers"
-          label="Capacity Unlocked"
-          sublabel="equivalent full-time engineers freed up for feature work"
-          decimals={1}
-        />
-        <MetricCard
-          icon={"\uD83D\uDCC8"}
-          value={Math.round(totals.roi)}
-          suffix="%"
-          label="Return on Investment"
-        />
-      </div>
-
-      {/* Cost Comparison Bar Chart */}
-      <div style={{ marginBottom: '56px' }}>
-        <div style={{
-          fontSize: '13px',
-          fontWeight: 400,
-          color: '#8A94A6',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: '8px',
-        }}>COST COMPARISON</div>
-        <h3 style={{
-          fontSize: '20px',
-          fontWeight: 400,
-          color: '#F2F5FA',
-          marginBottom: '24px',
-        }}>Monthly Cost: Your Team vs. Devin</h3>
-        <div style={{
-          padding: '24px',
-          borderRadius: '16px',
-          backgroundColor: '#181B28',
-          border: '1px solid #252836',
-        }}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={chartData}
-              layout="vertical"
-              margin={{ top: 5, right: 80, left: 10, bottom: 5 }}
-            >
-              <XAxis type="number" hide />
-              <YAxis
-                dataKey="name"
-                type="category"
-                width={100}
-                tick={{ fill: '#8A94A6', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={false} />
-              <Legend
-                wrapperStyle={{ color: '#8A94A6', fontSize: 13, paddingTop: 12 }}
-              />
-              <Bar dataKey="Current" fill="#363A4D" barSize={16} radius={[0, 4, 4, 0]}>
-                <LabelList content={<BarLabel />} />
-              </Bar>
-              <Bar dataKey="With Devin" fill="#21C19A" barSize={16} radius={[0, 4, 4, 0]}>
-                <LabelList content={<BarLabel />} />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* 12-Month Value Projection */}
-      <ProjectionSection
-        totalMonthlySavings={totals.totalMonthlySavings}
-        totalDevinMonthlyCost={totals.totalDevinMonthlyCost}
-        roi={totals.roi}
-      />
-
-      {/* Recommended Pilot */}
-      <div style={{ marginBottom: '56px' }}>
-        <div style={{
-          fontSize: '13px',
-          fontWeight: 400,
-          color: '#8A94A6',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          marginBottom: '8px',
-        }}>RECOMMENDATION</div>
-        <div style={{
-          backgroundColor: '#181B28',
-          border: '1px solid #252836',
-          borderLeft: '3px solid #21C19A',
-          borderRadius: '16px',
-          padding: '24px',
-        }}>
-          <h3 style={{
-            fontSize: '18px',
+    <>
+      {/* ZONE 5: RESULTS */}
+      <section className="zone-results">
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <div style={{
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#8A94A6',
+            marginBottom: '12px',
+          }}>RESULTS</div>
+          <h2 style={{
+            fontSize: '32px',
             fontWeight: 400,
             color: '#F2F5FA',
-            marginBottom: '12px',
+            marginBottom: '8px',
+          }}>Your <span className="gradient-text-blue-green">Impact Report</span></h2>
+          <p style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6' }}>
+            Based on real efficiency data from Devin enterprise deployments
+          </p>
+        </div>
+
+        <div className="metric-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '20px',
+          maxWidth: '1000px',
+          margin: '0 auto',
+        }}>
+          <MetricCard
+            icon={"\u23F1\uFE0F"}
+            value={Math.round(totals.totalHoursReclaimed)}
+            suffix=" hrs/mo"
+            label="Hours Reclaimed Per Month"
+          />
+          <MetricCard
+            icon={"\uD83D\uDCB0"}
+            value={Math.round(totals.annualSavings)}
+            prefix="$"
+            label="Annual Cost Savings"
+          />
+          <MetricCard
+            icon={"\uD83D\uDC69\u200D\uD83D\uDCBB"}
+            value={parseFloat(totals.capacityUnlocked.toFixed(1))}
+            suffix=" engineers"
+            label="Capacity Unlocked"
+            sublabel="equivalent full-time engineers freed up for feature work"
+            decimals={1}
+          />
+          <MetricCard
+            icon={"\uD83D\uDCC8"}
+            value={Math.round(totals.roi)}
+            suffix="%"
+            label="Return on Investment"
+          />
+        </div>
+      </section>
+
+      {/* ZONE 6: DEEP ANALYSIS */}
+      <section className="zone-analysis">
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '40px' }}>
+            <div style={{
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#8A94A6',
+              marginBottom: '8px',
+            }}>COST COMPARISON</div>
+            <h3 style={{
+              fontSize: '22px',
+              fontWeight: 400,
+              color: '#F2F5FA',
+              marginBottom: '24px',
+            }}>Monthly Cost: Your Team vs. Devin</h3>
+            <div style={{
+              padding: '24px',
+              borderRadius: '16px',
+              backgroundColor: '#181B28',
+              border: '1px solid #252836',
+            }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 80, left: 10, bottom: 5 }}
+                >
+                  <XAxis type="number" hide />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    width={100}
+                    tick={{ fill: '#8A94A6', fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={false} />
+                  <Legend
+                    wrapperStyle={{ color: '#8A94A6', fontSize: 13, paddingTop: 12 }}
+                  />
+                  <Bar dataKey="Current" fill="#363A4D" barSize={16} radius={[0, 4, 4, 0]}>
+                    <LabelList content={<BarLabel />} />
+                  </Bar>
+                  <Bar dataKey="With Devin" fill="#21C19A" barSize={16} radius={[0, 4, 4, 0]}>
+                    <LabelList content={<BarLabel />} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <ProjectionSection
+            totalMonthlySavings={totals.totalMonthlySavings}
+            totalDevinMonthlyCost={totals.totalDevinMonthlyCost}
+            roi={totals.roi}
+          />
+        </div>
+      </section>
+
+      {/* ZONE 7: RECOMMENDATION */}
+      <section className="zone-recommendation">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            color: '#8A94A6',
+          }}>RECOMMENDATION</div>
+        </div>
+
+        <div className="two-col-recommendation">
+          <div style={{
+            backgroundColor: '#181B28',
+            border: '1px solid #252836',
+            borderLeft: '3px solid #21C19A',
+            borderRadius: '16px',
+            padding: '24px',
           }}>
-            {"\uD83C\uDFAF"} Recommended Pilot: {recommendedPilot.name}
-          </h3>
-          <div style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5', lineHeight: 1.7 }}>
-            <p style={{ marginBottom: '8px' }}>
-              Based on your team&apos;s profile, <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{recommendedPilot.name.toLowerCase()}</span> offers the highest-impact starting point.
-            </p>
-            <p style={{ marginBottom: '8px' }}>
-              Your team currently spends <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{Math.round(recommendedPilot.currentMonthlyHours)} hrs/month</span> on this.
-            </p>
-            <p style={{ marginBottom: '8px' }}>
-              With Devin, this drops to <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{Math.round(recommendedPilot.hoursWithDevin)} hrs/month</span> — reclaiming <span style={{ fontWeight: 500, color: '#21C19A' }}>{Math.round(recommendedPilot.hoursReclaimed)} hours</span>.
-            </p>
-            <p style={{ marginBottom: '8px' }}>
-              Estimated monthly Devin cost for this category: <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{formatDollars(recommendedPilot.devinMonthlyCost)}</span>
-            </p>
-            <p>
-              Monthly savings: <span style={{ fontWeight: 500, color: '#21C19A' }}>{formatDollars(recommendedPilot.monthlySavings)}</span>
-            </p>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: 400,
+              color: '#F2F5FA',
+              marginBottom: '12px',
+            }}>
+              {"\uD83C\uDFAF"} Recommended Pilot: {recommendedPilot.name}
+            </h3>
+            <div style={{ fontSize: '14px', fontWeight: 400, color: '#BAD7F5', lineHeight: 1.7 }}>
+              <p style={{ marginBottom: '8px' }}>
+                Based on your team&apos;s profile, <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{recommendedPilot.name.toLowerCase()}</span> offers the highest-impact starting point.
+              </p>
+              <p style={{ marginBottom: '8px' }}>
+                Your team currently spends <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{Math.round(recommendedPilot.currentMonthlyHours)} hrs/month</span> on this.
+              </p>
+              <p style={{ marginBottom: '8px' }}>
+                With Devin, this drops to <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{Math.round(recommendedPilot.hoursWithDevin)} hrs/month</span> — reclaiming <span style={{ fontWeight: 500, color: '#21C19A' }}>{Math.round(recommendedPilot.hoursReclaimed)} hours</span>.
+              </p>
+              <p style={{ marginBottom: '8px' }}>
+                Estimated monthly Devin cost for this category: <span style={{ fontWeight: 500, color: '#F2F5FA' }}>{formatDollars(recommendedPilot.devinMonthlyCost)}</span>
+              </p>
+              <p>
+                Monthly savings: <span style={{ fontWeight: 500, color: '#21C19A' }}>{formatDollars(recommendedPilot.monthlySavings)}</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Next Steps Card */}
+          <div style={{
+            backgroundColor: '#181B28',
+            border: '1px solid #252836',
+            borderRadius: '16px',
+            padding: '24px',
+          }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 400, color: '#F2F5FA', marginBottom: '16px' }}>
+              How to get started
+            </h3>
+            {[
+              'Start a free trial at app.devin.ai',
+              'Connect your GitHub repository',
+              'Assign your first migration or bug-fix task',
+            ].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: i < 2 ? '16px' : '0' }}>
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  backgroundColor: '#21C19A', color: '#10131C',
+                  fontSize: '12px', fontWeight: 600,
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {i + 1}
+                </div>
+                <span style={{ fontSize: '14px', color: '#BAD7F5' }}>{step}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Sources */}
-      <div style={{
-        marginTop: '32px',
-        borderTop: '1px solid #252836',
-        paddingTop: '16px',
-        paddingBottom: '80px',
-      }}>
-        <div style={{ fontSize: '12px', color: '#555E70', lineHeight: 1.6 }}>
-          Efficiency data sourced from published Cognition case studies including Nubank (8-12x migration efficiency), enterprise security deployments (20x vulnerability remediation), and Devin&apos;s 2025 Performance Review. Conservative estimates used throughout. Learn more at{' '}
-          <a href="https://cognition.ai" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'underline' }}>
-            cognition.ai
-          </a>
+        {/* Sources */}
+        <div style={{
+          maxWidth: '900px',
+          margin: '32px auto 0',
+          borderTop: '1px solid #252836',
+          paddingTop: '16px',
+        }}>
+          <div style={{ fontSize: '12px', color: '#555E70', lineHeight: 1.6 }}>
+            Efficiency data sourced from published Cognition case studies including Nubank (8-12x migration efficiency), enterprise security deployments (20x vulnerability remediation), and Devin&apos;s 2025 Performance Review. Conservative estimates used throughout. Learn more at{' '}
+            <a href="https://cognition.ai" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'underline' }}>
+              cognition.ai
+            </a>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
