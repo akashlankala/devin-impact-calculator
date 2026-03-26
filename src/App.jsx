@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import './App.css'
+import ImpactDashboard from './ImpactDashboard'
 
 const CHALLENGE_DEFAULTS = {
   migrations: [30, 15, 10, 10, 10, 25],
@@ -226,18 +227,26 @@ function App() {
           </div>
         </section>
 
-        {/* SECTION 4 - PLACEHOLDER */}
-        <section className="pb-20">
-          <div
-            className="py-16 px-8 rounded-xl text-center"
-            style={{
-              border: '2px dashed #333333',
-              color: '#A0A0A0',
-            }}
-          >
-            <p className="text-lg">Your Impact Report — coming next</p>
-          </div>
-        </section>
+        {/* SECTION 4 - IMPACT REPORT */}
+        {total === 100 ? (
+          <ImpactDashboard
+            teamSize={engineers}
+            costBracket={cost}
+            timeAllocation={timeAllocation}
+          />
+        ) : (
+          <section className="pb-20">
+            <div
+              className="py-16 px-8 rounded-xl text-center"
+              style={{
+                border: '2px dashed #333333',
+                color: '#A0A0A0',
+              }}
+            >
+              <p className="text-lg">Adjust your time allocation to total 100% to see your impact report</p>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   )
