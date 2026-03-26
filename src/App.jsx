@@ -35,6 +35,86 @@ const COST_OPTIONS = [
   '$200K+',
 ]
 
+function NavBar() {
+  return (
+    <nav style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      width: '100%',
+      height: '56px',
+      backgroundColor: 'rgba(16, 19, 28, 0.85)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid #252836',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 24px',
+    }}>
+      {/* Left: Logo */}
+      <a
+        href="https://devin.ai/"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '18px',
+          fontWeight: 500,
+          color: '#F2F5FA',
+        }}
+      >
+        <span style={{ color: '#21C19A', fontSize: '10px' }}>{'\u25CF'}</span>
+        devin
+      </a>
+
+      {/* Center: Nav links */}
+      <div className="nav-center" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+        <a href="https://devin.ai/" target="_blank" rel="noopener noreferrer" className="nav-link">Home</a>
+        <a href="https://devin.ai/enterprise" target="_blank" rel="noopener noreferrer" className="nav-link">Enterprise</a>
+        <a href="https://devin.ai/pricing" target="_blank" rel="noopener noreferrer" className="nav-link">Pricing</a>
+        <a href="https://devin.ai/customers" target="_blank" rel="noopener noreferrer" className="nav-link">Customers</a>
+        <a href="#" className="nav-link nav-link-active">Impact Calculator</a>
+      </div>
+
+      {/* Right: Buttons */}
+      <div className="nav-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <a
+          href="https://app.devin.ai/login"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="nav-link"
+        >
+          Login
+        </a>
+        <a
+          href="https://app.devin.ai/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-block',
+            fontSize: '14px',
+            fontWeight: 500,
+            color: '#10131C',
+            backgroundColor: '#21C19A',
+            borderRadius: '999px',
+            padding: '8px 20px',
+            textDecoration: 'none',
+            transition: 'background-color 0.2s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+        >
+          Get started
+        </a>
+      </div>
+    </nav>
+  )
+}
+
 function SliderWithGreen({ value, onChange, min, max, label }) {
   const percent = ((value - min) / (max - min)) * 100
   return (
@@ -96,10 +176,11 @@ function App() {
     <>
       <div className="mouse-glow-overlay" />
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
+        <NavBar />
         <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 24px' }}>
 
           {/* SECTION 1 - HERO */}
-          <section style={{ textAlign: 'center', paddingTop: '64px', paddingBottom: '40px' }}>
+          <section style={{ textAlign: 'center', paddingTop: '80px', paddingBottom: '40px' }}>
             <h1 style={{
               fontSize: '38px',
               fontWeight: 400,
@@ -108,7 +189,7 @@ function App() {
               letterSpacing: '-0.02em',
               marginBottom: '16px',
             }}>
-              Devin Impact Calculator
+              Devin <span className="gradient-text-blue-green">Impact</span> Calculator
             </h1>
             <p style={{
               fontSize: '16px',
@@ -297,7 +378,7 @@ function App() {
                 borderRadius: '12px',
                 padding: '20px 24px',
               }}>
-                <span style={{ fontSize: '22px', fontWeight: 500, color: '#21C19A' }}>{devinCanHelp}%</span>
+                <span className="gradient-text-green-teal" style={{ fontSize: '22px', fontWeight: 500 }}>{devinCanHelp}%</span>
                 <span style={{ fontSize: '15px', fontWeight: 400, color: '#BAD7F5', marginLeft: '8px' }}>
                   of your team&apos;s time is spent on work Devin can help with
                 </span>
@@ -335,6 +416,7 @@ function App() {
               href="https://app.devin.ai/"
               target="_blank"
               rel="noopener noreferrer"
+              className="cta-pulse"
               style={{
                 display: 'inline-block',
                 fontSize: '14px',
@@ -371,16 +453,32 @@ function App() {
             </div>
           </section>
 
-          {/* FOOTER NOTE */}
-          <div style={{
-            textAlign: 'center',
-            fontSize: '11px',
-            color: '#555E70',
-            paddingBottom: '40px',
-            marginTop: '32px',
-          }}>
-            Built with Devin &middot; Not affiliated with Cognition
-          </div>
+          {/* FOOTER */}
+          <footer style={{ paddingBottom: '40px', marginTop: '32px' }}>
+            <div style={{ borderTop: '1px solid #252836', marginBottom: '24px' }} />
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '16px',
+            }}>
+              <div style={{ fontSize: '12px', color: '#555E70' }}>
+                <a href="https://cognition.ai/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>Privacy policy</a>
+                {' \u00B7 '}
+                <a href="https://cognition.ai/terms-of-service" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>Terms of service</a>
+              </div>
+              <div style={{ fontSize: '12px', color: '#555E70' }}>
+                <a href="https://linkedin.com/company/cognition-ai-labs/" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>LinkedIn</a>
+                {' \u00B7 '}
+                <a href="https://x.com/cognition" target="_blank" rel="noopener noreferrer" style={{ color: '#555E70', textDecoration: 'none' }}>X (Twitter)</a>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', fontSize: '11px', color: '#555E70' }}>
+              Built with Devin &middot; Not affiliated with Cognition
+            </div>
+          </footer>
         </div>
       </div>
     </>

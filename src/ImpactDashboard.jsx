@@ -9,6 +9,11 @@ import {
   Legend,
   ResponsiveContainer,
   LabelList,
+  LineChart,
+  Line,
+  Area,
+  ReferenceLine,
+  CartesianGrid,
 } from 'recharts'
 
 const HOURS_PER_ENGINEER_PER_MONTH = 160
@@ -47,6 +52,8 @@ function formatDollars(value) {
 
 function MetricCard({ icon, value, suffix, label, sublabel, decimals = 0, prefix = '' }) {
   const countUpRef = useRef(null)
+  const numberRef = useRef(null)
+  const prevValue = useRef(value)
   const { update } = useCountUp({
     ref: countUpRef,
     start: 0,
@@ -59,7 +66,18 @@ function MetricCard({ icon, value, suffix, label, sublabel, decimals = 0, prefix
   })
 
   useEffect(() => {
-    update(value)
+    if (prevValue.current !== value) {
+      const el = numberRef.current
+      if (el) {
+        el.style.opacity = '0.8'
+        const timer = setTimeout(() => { el.style.opacity = '1' }, 300)
+        prevValue.current = value
+        update(value)
+        return () => clearTimeout(timer)
+      }
+      prevValue.current = value
+      update(value)
+    }
   }, [value, update])
 
   return (
@@ -76,7 +94,16 @@ function MetricCard({ icon, value, suffix, label, sublabel, decimals = 0, prefix
       onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#252836' }}
     >
       <div style={{ fontSize: '20px', marginBottom: '12px' }}>{icon}</div>
-      <div style={{ fontSize: '28px', fontWeight: 500, color: '#21C19A', marginBottom: '4px' }}>
+      <div
+        ref={numberRef}
+        className="gradient-text-green-cyan"
+        style={{
+          fontSize: '28px',
+          fontWeight: 500,
+          marginBottom: '4px',
+          transition: 'opacity 0.3s ease',
+        }}
+      >
         <span ref={countUpRef} />
       </div>
       <div style={{ fontSize: '13px', fontWeight: 400, color: '#8A94A6', marginTop: '4px' }}>{label}</div>
@@ -120,6 +147,169 @@ function BarLabel({ x, y, width, value }) {
     >
       {formatDollars(value)}
     </text>
+  )
+}
+
+function formatYAxisTick(value) {
+  if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`
+  if (value >= 1000) return `$${Math.round(value / 1000)}K`
+  return `$${value}`
+}
+
+function ProjectionTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{
+        padding: '12px',
+        borderRadius: '8px',
+        fontSize: '12px',
+        backgroundColor: '#181B28',
+        border: '1px solid #252836',
+      }}>
+        <p style={{ fontWeight: 400, color: '#F2F5FA', marginBottom: '4px' }}>{label}</p>
+        {payload.filter(entry => entry.dataKey !== 'savings').map((entry) => (
+          <p key={entry.name} style={{ color: entry.color || entry.stroke, margin: '2px 0' }}>
+            {entry.name}: {formatDollars(entry.value)}
+          </p>
+        ))}
+      </div>
+    )
+  }
+  return null
+}
+
+function ProjectionSection({ totalMonthlySavings, totalDevinMonthlyCost, roi }) {
+  const projectionData = useMemo(() => {
+    const data = []
+    let cumulativeSavings = 0
+    for (let month = 1; month <= 12; month++) {
+      const cumulativeInvestment = totalDevinMonthlyCost * month
+      if (month === 1) {
+        cumulativeSavings += totalMonthlySavings * 0.5
+      } else if (month === 2) {
+        cumulativeSavings += totalMonthlySavings * 0.75
+      } else {
+        cumulativeSavings += totalMonthlySavings
+      }
+      data.push({
+        name: `Mo ${month}`,
+        investment: Math.round(cumulativeInvestment),
+        savings: Math.round(cumulativeSavings),
+      })
+    }
+    return data
+  }, [totalMonthlySavings, totalDevinMonthlyCost])
+
+  const breakevenMonth = useMemo(() => {
+    for (let i = 0; i < projectionData.length; i++) {
+      if (projectionData[i].savings > projectionData[i].investment) {
+        return i + 1
+      }
+    }
+    return null
+  }, [projectionData])
+
+  const netValue = projectionData.length > 0
+    ? projectionData[11].savings - projectionData[11].investment
+    : 0
+
+  return (
+    <div style={{ marginBottom: '56px' }}>
+      <div style={{
+        fontSize: '13px',
+        fontWeight: 400,
+        color: '#8A94A6',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        marginBottom: '8px',
+      }}>PROJECTION</div>
+      <h3 style={{
+        fontSize: '20px',
+        fontWeight: 400,
+        color: '#F2F5FA',
+        marginBottom: '24px',
+      }}>Cumulative Value Over <span className="gradient-text-blue-green">12 Months</span></h3>
+      <div style={{
+        padding: '24px',
+        borderRadius: '16px',
+        backgroundColor: '#181B28',
+        border: '1px solid #252836',
+      }}>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={projectionData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+            <defs>
+              <linearGradient id="savingsGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#21C19A" stopOpacity={0.12} />
+                <stop offset="100%" stopColor="#21C19A" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke="#252836" strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="name"
+              tick={{ fill: '#8A94A6', fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fill: '#8A94A6', fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={formatYAxisTick}
+            />
+            <Tooltip content={<ProjectionTooltip />} />
+            <Legend wrapperStyle={{ color: '#8A94A6', fontSize: 13, paddingTop: 12 }} />
+            <Area
+              dataKey="savings"
+              fill="url(#savingsGradient)"
+              stroke="none"
+              name="Cumulative Savings"
+              legendType="none"
+            />
+            <Line
+              type="monotone"
+              dataKey="investment"
+              stroke="#363A4D"
+              strokeDasharray="5 5"
+              strokeWidth={2}
+              dot={false}
+              name="Cumulative Investment"
+            />
+            <Line
+              type="monotone"
+              dataKey="savings"
+              stroke="#21C19A"
+              strokeWidth={2}
+              dot={false}
+              name="Cumulative Savings"
+            />
+            {breakevenMonth && (
+              <ReferenceLine
+                x={`Mo ${breakevenMonth}`}
+                stroke="#8A94A6"
+                strokeDasharray="3 3"
+                label={{
+                  value: 'Breakeven',
+                  position: 'top',
+                  fill: '#8A94A6',
+                  fontSize: 11,
+                }}
+              />
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <p style={{ fontSize: '14px', color: '#BAD7F5', marginTop: '16px' }}>
+        By month 12, your projected net value is{' '}
+        <span className="gradient-text-blue-green" style={{ fontWeight: 500 }}>
+          {formatDollars(netValue)}
+        </span>
+        {' '}&mdash; a{' '}
+        <span className="gradient-text-blue-green" style={{ fontWeight: 500 }}>
+          {Math.round(roi)}%
+        </span>
+        {' '}return on your Devin investment.
+      </p>
+    </div>
   )
 }
 
@@ -203,7 +393,7 @@ export default function ImpactDashboard({ teamSize, costBracket, timeAllocation 
           color: '#F2F5FA',
           letterSpacing: '-0.01em',
           marginBottom: '8px',
-        }}>Your Impact Report</h2>
+        }}>Your <span className="gradient-text-blue-green">Impact Report</span></h2>
         <p style={{ fontSize: '14px', fontWeight: 400, color: '#8A94A6' }}>
           Based on real efficiency data from Devin enterprise deployments
         </p>
@@ -295,6 +485,13 @@ export default function ImpactDashboard({ teamSize, costBracket, timeAllocation 
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* 12-Month Value Projection */}
+      <ProjectionSection
+        totalMonthlySavings={totals.totalMonthlySavings}
+        totalDevinMonthlyCost={totals.totalDevinMonthlyCost}
+        roi={totals.roi}
+      />
 
       {/* Recommended Pilot */}
       <div style={{ marginBottom: '56px' }}>
