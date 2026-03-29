@@ -205,10 +205,10 @@ select {
 /* Zone backgrounds */
 .zone-hero {
   background-color: #10131C;
-  min-height: calc(100vh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 120px 0 60px;
 }
 
 .zone-ticker {
@@ -289,8 +289,11 @@ select {
   }
 
   .zone-hero {
-    min-height: auto;
     padding: 60px 24px;
+  }
+
+  .persona-cards-row {
+    flex-direction: column !important;
   }
 
   .zone-configure,

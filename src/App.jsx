@@ -233,42 +233,96 @@ function RingChart({ percent }) {
   )
 }
 
+
 const PERSONA_CARDS = [
-  { id: 'individual', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB', title: 'Individual Developer', subtitle: 'Ship faster with an AI teammate', price: 'Core \u00B7 from $20' },
-  { id: 'team', emoji: '\uD83D\uDC65', title: 'Team Manager', subtitle: 'Justify Devin for your team with real ROI', price: 'Team \u00B7 $500/mo' },
-  { id: 'enterprise', emoji: '\uD83C\uDFE2', title: 'Enterprise Leader', subtitle: 'Evaluate Devin across your organization', price: 'Enterprise \u00B7 Custom pricing' },
+  {
+    id: 'individual',
+    emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB',
+    title: 'Individual Developer',
+    subtitle: 'Ship faster with an AI teammate',
+    footer: 'Core \u00B7 from $20',
+  },
+  {
+    id: 'team',
+    emoji: '\uD83D\uDC65',
+    title: 'Team Manager',
+    subtitle: 'Justify Devin for your team with real ROI',
+    footer: 'Team \u00B7 $500/mo',
+  },
+  {
+    id: 'enterprise',
+    emoji: '\uD83C\uDFE2',
+    title: 'Enterprise Leader',
+    subtitle: 'Evaluate Devin across your organization',
+    footer: 'Enterprise \u00B7 Custom pricing',
+  },
 ]
 
-const TRUST_PILLS = {
-  individual: ['Based on real workflows', 'Conservative estimates', '$9/hr effective cost'],
+const PERSONA_TRUST_PILLS = {
+  individual: ['4x faster task completion', '$9/hr effective cost', '85% PR merge rate', 'Pay as you go'],
   team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
-  enterprise: ['Fortune 500 ready', 'SOC 2 compliant', 'Custom deployment'],
+  enterprise: ['SOC 2 Type II', 'VPC deployment', 'SAML SSO', 'Used by Nubank, Ita\u00FA, Ramp'],
 }
 
-function PersonaSelector({ selectedPersona, setSelectedPersona }) {
+function StickyPersonaBar({ selectedPersona, setSelectedPersona, visible }) {
   return (
-    <section style={{ backgroundColor: '#10131C', padding: '40px 24px 0', textAlign: 'center' }}>
-      <div style={{
-        display: 'inline-flex', gap: '8px', backgroundColor: '#181B28',
-        border: '1px solid #252836', borderRadius: '999px', padding: '4px',
-      }}>
-        {PERSONA_CARDS.map(p => (
+    <div style={{
+      position: 'fixed',
+      top: '56px',
+      left: 0,
+      right: 0,
+      zIndex: 40,
+      backgroundColor: 'rgba(16, 19, 28, 0.92)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: '1px solid #252836',
+      padding: '10px 0',
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '8px',
+      opacity: visible ? 1 : 0,
+      pointerEvents: visible ? 'auto' : 'none',
+      transition: 'opacity 0.2s ease',
+    }}>
+      {[
+        { id: 'individual', label: '\uD83D\uDC69\u200D\uD83D\uDCBB Individual' },
+        { id: 'team', label: '\uD83D\uDC65 Team' },
+        { id: 'enterprise', label: '\uD83C\uDFE2 Enterprise' },
+      ].map(pill => {
+        const isSelected = selectedPersona === pill.id
+        return (
           <button
-            key={p.id}
-            onClick={() => setSelectedPersona(p.id)}
+            key={pill.id}
+            onClick={() => setSelectedPersona(pill.id)}
             style={{
-              padding: '10px 24px', borderRadius: '999px', fontSize: '14px',
-              fontWeight: selectedPersona === p.id ? 500 : 400, border: 'none', cursor: 'pointer',
-              backgroundColor: selectedPersona === p.id ? '#21C19A' : 'transparent',
-              color: selectedPersona === p.id ? '#10131C' : '#8A94A6',
-              transition: 'all 0.2s ease',
+              padding: '8px 16px',
+              borderRadius: '999px',
+              fontSize: '13px',
+              cursor: 'pointer',
+              transition: '0.2s',
+              backgroundColor: isSelected ? '#21C19A' : 'transparent',
+              border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
+              color: isSelected ? '#10131C' : '#8A94A6',
+              fontWeight: isSelected ? 500 : 400,
+            }}
+            onMouseEnter={(e) => {
+              if (!isSelected) {
+                e.currentTarget.style.borderColor = '#363A4D'
+                e.currentTarget.style.color = '#F2F5FA'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) {
+                e.currentTarget.style.borderColor = '#252836'
+                e.currentTarget.style.color = '#8A94A6'
+              }
             }}
           >
-            {p.emoji} {p.title}
+            {pill.label}
           </button>
-        ))}
-      </div>
-    </section>
+        )
+      })}
+    </div>
   )
 }
 
@@ -280,6 +334,10 @@ function App() {
   const [selectedChallenge, setSelectedChallenge] = useState('migrations')
   const [timeAllocation, setTimeAllocation] = useState([...CHALLENGE_DEFAULTS.migrations])
   const hasManuallyEdited = useRef(false)
+  const [stickyBarVisible, setStickyBarVisible] = useState(false)
+  const personaCardsRef = useRef(null)
+  const prevPersonaRef = useRef(null)
+  const contentRef = useRef(null)
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -289,6 +347,34 @@ function App() {
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
+
+  // Intersection Observer for sticky bar
+  useEffect(() => {
+    const el = personaCardsRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStickyBarVisible(!entry.isIntersecting)
+      },
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // Content transition on persona change
+  useEffect(() => {
+    if (prevPersonaRef.current !== selectedPersona && prevPersonaRef.current !== undefined) {
+      const el = contentRef.current
+      if (el) {
+        el.style.opacity = '0.3'
+        const timer = setTimeout(() => { el.style.opacity = '1' }, 300)
+        prevPersonaRef.current = selectedPersona
+        return () => clearTimeout(timer)
+      }
+    }
+    prevPersonaRef.current = selectedPersona
+  }, [selectedPersona])
 
   const handleTimeChange = useCallback((index, value) => {
     hasManuallyEdited.current = true
@@ -335,7 +421,12 @@ function App() {
             </p>
 
             {/* Persona Cards */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+            <div
+              id="persona-cards"
+              ref={personaCardsRef}
+              className="persona-cards-row"
+              style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}
+            >
               {PERSONA_CARDS.map(card => {
                 const isSelected = selectedPersona === card.id
                 const hasSelection = selectedPersona !== null
@@ -350,26 +441,41 @@ function App() {
                       padding: '24px',
                       cursor: 'pointer',
                       flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px',
                       textAlign: 'left',
                       opacity: hasSelection && !isSelected ? 0.5 : 1,
                       transform: hasSelection && !isSelected ? 'scale(0.97)' : 'scale(1)',
                       boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.1)' : 'none',
                       transition: 'all 0.2s ease',
                     }}
+                    onMouseEnter={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#363A4D'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#252836'
+                        e.currentTarget.style.transform = hasSelection ? 'scale(0.97)' : 'scale(1)'
+                      }
+                    }}
                   >
-                    <div style={{ fontSize: '24px', marginBottom: '12px' }}>{card.emoji}</div>
-                    <div style={{ fontSize: '15px', color: '#F2F5FA', marginBottom: '6px' }}>{card.title}</div>
-                    <div style={{ fontSize: '13px', color: '#8A94A6', lineHeight: 1.4, marginBottom: '12px' }}>{card.subtitle}</div>
-                    <div style={{ fontSize: '12px', color: '#555E70' }}>{card.price}</div>
+                    <span style={{ fontSize: '24px' }}>{card.emoji}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 400, color: '#F2F5FA' }}>{card.title}</span>
+                    <span style={{ fontSize: '13px', color: '#8A94A6' }}>{card.subtitle}</span>
+                    <span style={{ fontSize: '12px', color: '#555E70' }}>{card.footer}</span>
                   </div>
                 )
               })}
             </div>
 
-            {/* Trust pills based on selectedPersona */}
-            {selectedPersona && TRUST_PILLS[selectedPersona] && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
-                {TRUST_PILLS[selectedPersona].map(badge => (
+            {/* Contextual Trust Pills */}
+            {selectedPersona && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '24px', opacity: 1, transition: 'opacity 0.3s ease' }}>
+                {PERSONA_TRUST_PILLS[selectedPersona].map(badge => (
                   <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
                     {badge}
                   </span>
@@ -379,20 +485,24 @@ function App() {
 
             {/* CTA button - only when persona selected */}
             {selectedPersona && (
-              <button
-                onClick={scrollToContent}
-                className="cta-pulse"
-                style={{
-                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
-                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
-                  border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '24px',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
-              >
-                Calculate your impact {'\u2193'}
-              </button>
+              <div style={{ opacity: 1, transition: 'opacity 0.3s ease', marginBottom: '24px' }}>
+                <button
+                  onClick={scrollToContent}
+                  className="cta-pulse"
+                  style={{
+                    display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                    backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
+                    border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+                >
+                  Calculate your impact {'\u2193'}
+                </button>
+              </div>
             )}
+
+            {/* Scroll indicator - only when persona selected */}
             {selectedPersona && (
               <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
                 {'\u2228'}
@@ -401,11 +511,18 @@ function App() {
           </div>
         </section>
 
+        {/* STICKY PERSONA PILL BAR */}
+        <StickyPersonaBar
+          selectedPersona={selectedPersona}
+          setSelectedPersona={setSelectedPersona}
+          visible={stickyBarVisible}
+        />
+
         {/* ZONE 2: STATS TICKER */}
         <StatsTicker />
 
-        {/* PERSONA SELECTOR */}
-        <PersonaSelector selectedPersona={selectedPersona} setSelectedPersona={setSelectedPersona} />
+        {/* CONTENT AREA */}
+        <div ref={contentRef} style={{ transition: 'opacity 0.2s ease', paddingTop: stickyBarVisible ? '48px' : '0' }}>
 
         {/* INDIVIDUAL DEVELOPER FLOW */}
         <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
@@ -568,7 +685,19 @@ function App() {
           </section>
         )}
 
+
         </div>{/* END TEAM MANAGER FLOW */}
+
+        {/* No persona selected */}
+        {selectedPersona === null && (
+          <div style={{ padding: '120px 24px', textAlign: 'center' }}>
+            <p style={{ color: '#555E70', fontSize: '18px', fontWeight: 400 }}>
+              Select your role above to see your personalized impact report
+            </p>
+          </div>
+        )}
+
+        </div>{/* End content area wrapper */}
 
         {/* ZONE 8: CTA + FOOTER */}
         <section className="zone-cta">
