@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import './App.css'
 import ImpactDashboard from './ImpactDashboard'
+import IndividualFlow from './IndividualFlow'
 
 const CHALLENGE_DEFAULTS = {
   migrations: [30, 15, 10, 10, 10, 25],
@@ -232,11 +233,6 @@ function RingChart({ percent }) {
   )
 }
 
-const PERSONA_TRUST_PILLS = {
-  individual: ['4x faster task completion', '$9/hr effective cost', '85% PR merge rate', 'Pay as you go'],
-  team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
-  enterprise: ['SOC 2 Type II', 'VPC deployment', 'SAML SSO', 'Used by Nubank, Ita\u00FA, Ramp'],
-}
 
 const PERSONA_CARDS = [
   {
@@ -261,6 +257,12 @@ const PERSONA_CARDS = [
     footer: 'Enterprise \u00B7 Custom pricing',
   },
 ]
+
+const PERSONA_TRUST_PILLS = {
+  individual: ['4x faster task completion', '$9/hr effective cost', '85% PR merge rate', 'Pay as you go'],
+  team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
+  enterprise: ['SOC 2 Type II', 'VPC deployment', 'SAML SSO', 'Used by Nubank, Ita\u00FA, Ramp'],
+}
 
 function StickyPersonaBar({ selectedPersona, setSelectedPersona, visible }) {
   return (
@@ -325,13 +327,13 @@ function StickyPersonaBar({ selectedPersona, setSelectedPersona, visible }) {
 }
 
 function App() {
+  const [selectedPersona, setSelectedPersona] = useState(null)
   const [engineers, setEngineers] = useState(25)
   const [cost, setCost] = useState('$150K\u2013$175K')
   const [backlog, setBacklog] = useState(150)
   const [selectedChallenge, setSelectedChallenge] = useState('migrations')
   const [timeAllocation, setTimeAllocation] = useState([...CHALLENGE_DEFAULTS.migrations])
   const hasManuallyEdited = useRef(false)
-  const [selectedPersona, setSelectedPersona] = useState(null)
   const [stickyBarVisible, setStickyBarVisible] = useState(false)
   const personaCardsRef = useRef(null)
   const prevPersonaRef = useRef(null)
@@ -360,7 +362,7 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
-  // Content transition on persona change - use DOM manipulation to avoid lint issue
+  // Content transition on persona change
   useEffect(() => {
     if (prevPersonaRef.current !== selectedPersona && prevPersonaRef.current !== undefined) {
       const el = contentRef.current
@@ -393,8 +395,11 @@ function App() {
   const devinCanHelp = 100 - timeAllocation[5]
 
   const scrollToContent = () => {
-    const el = document.getElementById('zone-configure')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+    const ticker = document.querySelector('.zone-ticker')
+    if (ticker) {
+      const rect = ticker.getBoundingClientRect()
+      window.scrollTo({ top: window.scrollY + rect.bottom, behavior: 'smooth' })
+    }
   }
 
   return (
@@ -407,12 +412,12 @@ function App() {
 
         {/* ZONE 1: HERO */}
         <section className="zone-hero">
-          <div style={{ textAlign: 'center', maxWidth: '800px', padding: '0 24px' }}>
+          <div style={{ textAlign: 'center', maxWidth: '900px', padding: '0 24px' }}>
             <h1 style={{ fontSize: '56px', fontWeight: 400, color: '#F2F5FA', lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '16px' }}>
               Devin <span className="gradient-text-blue-green">Impact</span>
             </h1>
             <p style={{ fontSize: '18px', fontWeight: 400, color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
-              See how Devin fits into your workflow — whether you&apos;re shipping code, managing a team, or leading an organization
+              See how Devin fits into your workflow &mdash; whether you&apos;re shipping code, managing a team, or leading an organization
             </p>
 
             {/* Persona Cards */}
@@ -429,30 +434,33 @@ function App() {
                   <div
                     key={card.id}
                     onClick={() => setSelectedPersona(card.id)}
-                    className="persona-card"
                     style={{
-                      flex: 1,
                       backgroundColor: '#181B28',
                       border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
                       borderRadius: '16px',
                       padding: '24px',
+                      cursor: 'pointer',
+                      flex: 1,
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
                       textAlign: 'left',
-                      boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.1)' : 'none',
                       opacity: hasSelection && !isSelected ? 0.5 : 1,
                       transform: hasSelection && !isSelected ? 'scale(0.97)' : 'scale(1)',
+                      boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.1)' : 'none',
+                      transition: 'all 0.2s ease',
                     }}
                     onMouseEnter={(e) => {
-                      if (!isSelected) e.currentTarget.style.borderColor = '#363A4D'
-                      if (!isSelected) e.currentTarget.style.transform = 'translateY(-2px)'
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#363A4D'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isSelected) e.currentTarget.style.borderColor = '#252836'
-                      if (!isSelected) e.currentTarget.style.transform = hasSelection ? 'scale(0.97)' : 'scale(1)'
+                      if (!isSelected) {
+                        e.currentTarget.style.borderColor = '#252836'
+                        e.currentTarget.style.transform = hasSelection ? 'scale(0.97)' : 'scale(1)'
+                      }
                     }}
                   >
                     <span style={{ fontSize: '24px' }}>{card.emoji}</span>
@@ -475,7 +483,7 @@ function App() {
               </div>
             )}
 
-            {/* Calculate your impact button */}
+            {/* CTA button - only when persona selected */}
             {selectedPersona && (
               <div style={{ opacity: 1, transition: 'opacity 0.3s ease', marginBottom: '24px' }}>
                 <button
@@ -516,7 +524,43 @@ function App() {
         {/* CONTENT AREA */}
         <div ref={contentRef} style={{ transition: 'opacity 0.2s ease', paddingTop: stickyBarVisible ? '48px' : '0' }}>
 
-        {/* Team Manager content - use display to preserve state */}
+        {/* INDIVIDUAL DEVELOPER FLOW */}
+        <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
+          <IndividualFlow />
+        </div>
+
+        {/* ENTERPRISE PLACEHOLDER */}
+        {selectedPersona === 'enterprise' && (
+          <section style={{ backgroundColor: '#10131C', padding: '80px 24px 64px' }}>
+            <div style={{
+              maxWidth: '700px', margin: '0 auto', padding: '64px 32px', borderRadius: '16px',
+              textAlign: 'center', border: '2px dashed #252836', color: '#8A94A6',
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '24px' }}>{"\uD83C\uDFE2"}</div>
+              <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#21C19A', marginBottom: '12px' }}>COMING SOON</div>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#F2F5FA', marginBottom: '12px' }}>Enterprise Impact Assessment</h2>
+              <p style={{ fontSize: '14px', color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
+                A comprehensive ROI calculator for large-scale Devin deployments, including custom integrations, security compliance, and organization-wide impact projections.
+              </p>
+              <a
+                href="https://devin.ai/enterprise"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '12px 28px',
+                  textDecoration: 'none', transition: 'background-color 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+              >
+                Contact Sales
+              </a>
+            </div>
+          </section>
+        )}
+
+        {/* TEAM MANAGER FLOW */}
         <div style={{ display: selectedPersona === 'team' ? 'block' : 'none' }}>
 
         {/* ZONE 3: CONFIGURE YOUR TEAM */}
@@ -641,29 +685,8 @@ function App() {
           </section>
         )}
 
-        </div>{/* End Team Manager content */}
 
-        {/* Individual Developer - Coming Soon */}
-        {selectedPersona === 'individual' && (
-          <div style={{ padding: '80px 24px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-            <p style={{ color: '#8A94A6', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>COMING SOON</p>
-            <p style={{ color: '#F2F5FA', fontSize: '22px', fontWeight: 400, marginTop: '12px' }}>Individual Developer Impact</p>
-            <p style={{ color: '#8A94A6', fontSize: '15px', marginTop: '12px', lineHeight: 1.6 }}>
-              A personalized calculator for solo developers, side project builders, and anyone who wants to ship faster with Devin.
-            </p>
-          </div>
-        )}
-
-        {/* Enterprise Leader - Coming Soon */}
-        {selectedPersona === 'enterprise' && (
-          <div style={{ padding: '80px 24px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-            <p style={{ color: '#8A94A6', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>COMING SOON</p>
-            <p style={{ color: '#F2F5FA', fontSize: '22px', fontWeight: 400, marginTop: '12px' }}>Enterprise Impact Assessment</p>
-            <p style={{ color: '#8A94A6', fontSize: '15px', marginTop: '12px', lineHeight: 1.6 }}>
-              Evaluate Devin&apos;s impact across your entire engineering organization — with compliance, security, and org-wide ROI.
-            </p>
-          </div>
-        )}
+        </div>{/* END TEAM MANAGER FLOW */}
 
         {/* No persona selected */}
         {selectedPersona === null && (
