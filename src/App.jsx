@@ -233,18 +233,26 @@ function RingChart({ percent }) {
   )
 }
 
+const PERSONA_CARDS = [
+  { id: 'individual', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB', title: 'Individual Developer', subtitle: 'Ship faster with an AI teammate', price: 'Core \u00B7 from $20' },
+  { id: 'team', emoji: '\uD83D\uDC65', title: 'Team Manager', subtitle: 'Justify Devin for your team with real ROI', price: 'Team \u00B7 $500/mo' },
+  { id: 'enterprise', emoji: '\uD83C\uDFE2', title: 'Enterprise Leader', subtitle: 'Evaluate Devin across your organization', price: 'Enterprise \u00B7 Custom pricing' },
+]
+
+const TRUST_PILLS = {
+  individual: ['Based on real workflows', 'Conservative estimates', '$9/hr effective cost'],
+  team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
+  enterprise: ['Fortune 500 ready', 'SOC 2 compliant', 'Custom deployment'],
+}
+
 function PersonaSelector({ selectedPersona, setSelectedPersona }) {
-  const personas = [
-    { id: 'team', emoji: '\uD83D\uDC65', title: 'Team Manager', subtitle: 'Calculate impact for your engineering team' },
-    { id: 'individual', emoji: '\uD83D\uDC64', title: 'Individual Developer', subtitle: 'See how Devin speeds up your personal workflow' },
-  ]
   return (
     <section style={{ backgroundColor: '#10131C', padding: '40px 24px 0', textAlign: 'center' }}>
       <div style={{
         display: 'inline-flex', gap: '8px', backgroundColor: '#181B28',
         border: '1px solid #252836', borderRadius: '999px', padding: '4px',
       }}>
-        {personas.map(p => (
+        {PERSONA_CARDS.map(p => (
           <button
             key={p.id}
             onClick={() => setSelectedPersona(p.id)}
@@ -265,7 +273,7 @@ function PersonaSelector({ selectedPersona, setSelectedPersona }) {
 }
 
 function App() {
-  const [selectedPersona, setSelectedPersona] = useState('team')
+  const [selectedPersona, setSelectedPersona] = useState(null)
   const [engineers, setEngineers] = useState(25)
   const [cost, setCost] = useState('$150K\u2013$175K')
   const [backlog, setBacklog] = useState(150)
@@ -300,9 +308,12 @@ function App() {
   const total = timeAllocation.reduce((sum, v) => sum + v, 0)
   const devinCanHelp = 100 - timeAllocation[5]
 
-  const scrollToConfigure = () => {
-    const el = document.getElementById('zone-configure')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  const scrollToContent = () => {
+    const ticker = document.querySelector('.zone-ticker')
+    if (ticker) {
+      const rect = ticker.getBoundingClientRect()
+      window.scrollTo({ top: window.scrollY + rect.bottom, behavior: 'smooth' })
+    }
   }
 
   return (
@@ -315,43 +326,78 @@ function App() {
 
         {/* ZONE 1: HERO */}
         <section className="zone-hero">
-          <div style={{ textAlign: 'center', maxWidth: '700px', padding: '0 24px' }}>
-            <div style={{
-              display: 'inline-block', backgroundColor: '#181B28', border: '1px solid #252836',
-              borderRadius: '999px', padding: '6px 16px', fontSize: '11px', textTransform: 'uppercase',
-              letterSpacing: '0.12em', color: '#8A94A6', marginBottom: '24px',
-            }}>
-              FOR ENGINEERING LEADERS
-            </div>
+          <div style={{ textAlign: 'center', maxWidth: '900px', padding: '0 24px' }}>
             <h1 style={{ fontSize: '56px', fontWeight: 400, color: '#F2F5FA', lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '16px' }}>
               Devin <span className="gradient-text-blue-green">Impact</span>
             </h1>
             <p style={{ fontSize: '18px', fontWeight: 400, color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
-              See how much engineering time and budget Devin can give back to your team
+              See how Devin fits into your workflow &mdash; whether you&apos;re shipping code, managing a team, or leading an organization
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '40px' }}>
-              {['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'].map(badge => (
-                <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
-                  {badge}
-                </span>
-              ))}
+
+            {/* Persona Cards */}
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+              {PERSONA_CARDS.map(card => {
+                const isSelected = selectedPersona === card.id
+                const hasSelection = selectedPersona !== null
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => setSelectedPersona(card.id)}
+                    style={{
+                      backgroundColor: '#181B28',
+                      border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
+                      borderRadius: '16px',
+                      padding: '24px',
+                      cursor: 'pointer',
+                      flex: 1,
+                      textAlign: 'left',
+                      opacity: hasSelection && !isSelected ? 0.5 : 1,
+                      transform: hasSelection && !isSelected ? 'scale(0.97)' : 'scale(1)',
+                      boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.1)' : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <div style={{ fontSize: '24px', marginBottom: '12px' }}>{card.emoji}</div>
+                    <div style={{ fontSize: '15px', color: '#F2F5FA', marginBottom: '6px' }}>{card.title}</div>
+                    <div style={{ fontSize: '13px', color: '#8A94A6', lineHeight: 1.4, marginBottom: '12px' }}>{card.subtitle}</div>
+                    <div style={{ fontSize: '12px', color: '#555E70' }}>{card.price}</div>
+                  </div>
+                )
+              })}
             </div>
-            <button
-              onClick={scrollToConfigure}
-              className="cta-pulse"
-              style={{
-                display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
-                backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
-                border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '48px',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
-            >
-              Calculate your impact {'\u2193'}
-            </button>
-            <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
-              {'\u2228'}
-            </div>
+
+            {/* Trust pills based on selectedPersona */}
+            {selectedPersona && TRUST_PILLS[selectedPersona] && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
+                {TRUST_PILLS[selectedPersona].map(badge => (
+                  <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* CTA button - only when persona selected */}
+            {selectedPersona && (
+              <button
+                onClick={scrollToContent}
+                className="cta-pulse"
+                style={{
+                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
+                  border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '24px',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+              >
+                Calculate your impact {'\u2193'}
+              </button>
+            )}
+            {selectedPersona && (
+              <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
+                {'\u2228'}
+              </div>
+            )}
           </div>
         </section>
 
@@ -365,6 +411,37 @@ function App() {
         <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
           <IndividualFlow />
         </div>
+
+        {/* ENTERPRISE PLACEHOLDER */}
+        {selectedPersona === 'enterprise' && (
+          <section style={{ backgroundColor: '#10131C', padding: '80px 24px 64px' }}>
+            <div style={{
+              maxWidth: '700px', margin: '0 auto', padding: '64px 32px', borderRadius: '16px',
+              textAlign: 'center', border: '2px dashed #252836', color: '#8A94A6',
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '24px' }}>{"\uD83C\uDFE2"}</div>
+              <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#21C19A', marginBottom: '12px' }}>COMING SOON</div>
+              <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#F2F5FA', marginBottom: '12px' }}>Enterprise Impact Assessment</h2>
+              <p style={{ fontSize: '14px', color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
+                A comprehensive ROI calculator for large-scale Devin deployments, including custom integrations, security compliance, and organization-wide impact projections.
+              </p>
+              <a
+                href="https://devin.ai/enterprise"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '12px 28px',
+                  textDecoration: 'none', transition: 'background-color 0.2s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+              >
+                Contact Sales
+              </a>
+            </div>
+          </section>
+        )}
 
         {/* TEAM MANAGER FLOW */}
         <div style={{ display: selectedPersona === 'team' ? 'block' : 'none' }}>

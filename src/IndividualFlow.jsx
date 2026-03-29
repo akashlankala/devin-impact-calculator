@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 const INTENT_CARDS = [
   { id: 'speedup', emoji: '\uD83D\uDCBC', title: 'Speed up my dev work', subtitle: "I'm a developer \u2014 I want to spend less time on busywork" },
@@ -191,7 +191,7 @@ function SpeedupReport({ codingHours, busyworkPercent, hourlyRate, painPoint }) 
         </div>
       </div>
 
-      <GreenPillCTA text="Start building with Devin \u2014 from $20" href="https://app.devin.ai/" />
+      <GreenPillCTA text="Start building with Devin — from $20" href="https://app.devin.ai/" />
     </section>
   )
 }
@@ -223,7 +223,7 @@ function SideProjectReport({ projectType, progress, hoursPerWeek }) {
 
       {/* Timeline bars */}
       <div style={{ maxWidth: '800px', margin: '0 auto 40px' }}>
-        <div style={{ fontSize: '13px', textTransform: 'uppercase', color: '#8A94A6', marginBottom: '8px' }}>BUILDING ALONE</div>
+        <div style={{ fontSize: '13px', textTransform: 'uppercase', color: '#8A94A6', marginBottom: '8px' }}>WITHOUT DEVIN</div>
         <div style={{ height: '44px', borderRadius: '8px', backgroundColor: '#363A4D', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '12px', marginBottom: '16px' }}>
           <span style={{ fontSize: '13px', color: '#8A94A6', whiteSpace: 'nowrap' }}>~{weeksAlone} weeks</span>
         </div>
@@ -289,7 +289,7 @@ function SideProjectReport({ projectType, progress, hoursPerWeek }) {
         </div>
       </div>
 
-      <GreenPillCTA text="Start your project \u2014 from $20" href="https://app.devin.ai/" />
+      <GreenPillCTA text="Start your project — from $20" href="https://app.devin.ai/" />
     </section>
   )
 }
@@ -321,12 +321,13 @@ function NewBuilderReport({ newProjectType, triedBefore }) {
       </div>
 
       {/* 3-step diagram */}
-      <div className="ind-steps-row" style={{ maxWidth: '750px', margin: '0 auto 40px', display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+      <div className="ind-steps-row" style={{ maxWidth: '750px', margin: '0 auto 40px', display: 'flex', gap: 0, alignItems: 'stretch' }}>
         {steps.map((step, i) => (
-          <div key={step.num} style={{ display: 'flex', alignItems: 'stretch', flex: i < steps.length - 1 ? undefined : 1 }}>
+          <React.Fragment key={step.num}>
             <div style={{
               backgroundColor: '#181B28', border: '1px solid #252836', borderRadius: '16px',
-              padding: '24px', flex: 1, textAlign: 'center',
+              padding: '24px', flex: '1 1 0px', minWidth: 0, minHeight: '200px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             }}>
               <div style={{
                 width: '36px', height: '36px', backgroundColor: '#21C19A', color: '#10131C',
@@ -338,11 +339,11 @@ function NewBuilderReport({ newProjectType, triedBefore }) {
               <div style={{ fontSize: '13px', color: '#8A94A6' }}>{step.text}</div>
             </div>
             {i < steps.length - 1 && (
-              <div className="ind-step-arrow" style={{ display: 'flex', alignItems: 'center', padding: '0 4px', fontSize: '20px', color: '#555E70' }}>
+              <div style={{ flexShrink: 0, width: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555E70', fontSize: '20px' }}>
                 {'\u2192'}
               </div>
             )}
-          </div>
+          </React.Fragment>
         ))}
       </div>
 
@@ -372,14 +373,17 @@ function NewBuilderReport({ newProjectType, triedBefore }) {
         padding: '20px', maxWidth: '700px', margin: '0 auto 40px',
       }}>
         <div style={{ fontSize: '15px', fontWeight: 400, color: '#F2F5FA', marginBottom: '8px' }}>
-          You&apos;re not alone
+          Real teams, real results
         </div>
         <div style={{ fontSize: '14px', color: '#BAD7F5', lineHeight: 1.6 }}>
-          At Gumroad, marketing and support teams ship code changes through Devin every day &mdash; no engineering degree required.
+          Gumroad, an e-commerce platform with 1,500+ Devin-merged PRs, found that even their non-technical teams &mdash; marketing, support, and product &mdash; could ship code changes through Devin via Slack. No engineering background needed.
+        </div>
+        <div style={{ fontSize: '11px', color: '#555E70', marginTop: '8px' }}>
+          Source: Cognition case study, 2025
         </div>
       </div>
 
-      <GreenPillCTA text="Build your first project \u2014 from $20" href="https://app.devin.ai/" />
+      <GreenPillCTA text="Build your first project — from $20" href="https://app.devin.ai/" />
     </section>
   )
 }
@@ -390,7 +394,7 @@ export default function IndividualFlow() {
   const [codingHours, setCodingHours] = useState(35)
   const [busyworkPercent, setBusyworkPercent] = useState(50)
   const [hourlyRate, setHourlyRate] = useState(87)
-  const [painPoint, setPainPoint] = useState(null)
+  const [painPoint, setPainPoint] = useState("bugs")
   const [projectType, setProjectType] = useState(null)
   const [progress, setProgress] = useState('idea')
   const [hoursPerWeek, setHoursPerWeek] = useState(5)
