@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import './App.css'
 import ImpactDashboard from './ImpactDashboard'
+import IndividualFlow from './IndividualFlow'
 
 const CHALLENGE_DEFAULTS = {
   migrations: [30, 15, 10, 10, 10, 25],
@@ -232,7 +233,39 @@ function RingChart({ percent }) {
   )
 }
 
+function PersonaSelector({ selectedPersona, setSelectedPersona }) {
+  const personas = [
+    { id: 'team', emoji: '\uD83D\uDC65', title: 'Team Manager', subtitle: 'Calculate impact for your engineering team' },
+    { id: 'individual', emoji: '\uD83D\uDC64', title: 'Individual Developer', subtitle: 'See how Devin speeds up your personal workflow' },
+  ]
+  return (
+    <section style={{ backgroundColor: '#10131C', padding: '40px 24px 0', textAlign: 'center' }}>
+      <div style={{
+        display: 'inline-flex', gap: '8px', backgroundColor: '#181B28',
+        border: '1px solid #252836', borderRadius: '999px', padding: '4px',
+      }}>
+        {personas.map(p => (
+          <button
+            key={p.id}
+            onClick={() => setSelectedPersona(p.id)}
+            style={{
+              padding: '10px 24px', borderRadius: '999px', fontSize: '14px',
+              fontWeight: selectedPersona === p.id ? 500 : 400, border: 'none', cursor: 'pointer',
+              backgroundColor: selectedPersona === p.id ? '#21C19A' : 'transparent',
+              color: selectedPersona === p.id ? '#10131C' : '#8A94A6',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {p.emoji} {p.title}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function App() {
+  const [selectedPersona, setSelectedPersona] = useState('team')
   const [engineers, setEngineers] = useState(25)
   const [cost, setCost] = useState('$150K\u2013$175K')
   const [backlog, setBacklog] = useState(150)
@@ -324,6 +357,17 @@ function App() {
 
         {/* ZONE 2: STATS TICKER */}
         <StatsTicker />
+
+        {/* PERSONA SELECTOR */}
+        <PersonaSelector selectedPersona={selectedPersona} setSelectedPersona={setSelectedPersona} />
+
+        {/* INDIVIDUAL DEVELOPER FLOW */}
+        <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
+          <IndividualFlow />
+        </div>
+
+        {/* TEAM MANAGER FLOW */}
+        <div style={{ display: selectedPersona === 'team' ? 'block' : 'none' }}>
 
         {/* ZONE 3: CONFIGURE YOUR TEAM */}
         <section className="zone-configure" id="zone-configure">
@@ -446,6 +490,8 @@ function App() {
             </div>
           </section>
         )}
+
+        </div>{/* END TEAM MANAGER FLOW */}
 
         {/* ZONE 8: CTA + FOOTER */}
         <section className="zone-cta">

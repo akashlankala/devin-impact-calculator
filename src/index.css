@@ -325,3 +325,43 @@ select {
 .ring-progress {
   transition: stroke-dashoffset 0.5s ease;
 }
+
+/* Individual Flow responsive */
+@media (max-width: 767px) {
+  .ind-intent-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ind-speedup-cols {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ind-project-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .ind-metric-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ind-metric-two {
+    grid-template-columns: 1fr !important;
+  }
+
+  .ind-steps-row {
+    flex-direction: column !important;
+  }
+
+  .ind-step-arrow {
+    justify-content: center !important;
+    padding: 4px 0 !important;
+  }
+
+  .ind-step-arrow::after {
+    content: '\2193';
+  }
+
+  .ind-callout-cols {
+    grid-template-columns: 1fr !important;
+  }
+}
