@@ -364,4 +364,34 @@ select {
   .ind-callout-cols {
     grid-template-columns: 1fr !important;
   }
+
+  /* Enterprise Flow responsive */
+  .enterprise-input-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .enterprise-headline-cards {
+    flex-direction: column !important;
+  }
+
+  .enterprise-hiring-impact {
+    flex-direction: column !important;
+  }
+
+  .enterprise-investment-cards {
+    flex-direction: column !important;
+  }
+
+  .enterprise-badges {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .enterprise-evidence-cards {
+    flex-direction: column !important;
+  }
+
+  .enterprise-cta-layout {
+    flex-direction: column !important;
+  }
 }

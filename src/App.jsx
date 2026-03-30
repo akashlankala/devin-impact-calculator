@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import './App.css'
 import ImpactDashboard from './ImpactDashboard'
 import IndividualFlow from './IndividualFlow'
+import EnterpriseFlow from './EnterpriseFlow'
 
 const CHALLENGE_DEFAULTS = {
   migrations: [30, 15, 10, 10, 10, 25],
@@ -443,36 +444,10 @@ function App() {
           <IndividualFlow />
         </div>
 
-        {/* ENTERPRISE PLACEHOLDER */}
-        {selectedPersona === 'enterprise' && (
-          <section style={{ backgroundColor: '#10131C', padding: '80px 24px 64px' }}>
-            <div style={{
-              maxWidth: '700px', margin: '0 auto', padding: '64px 32px', borderRadius: '16px',
-              textAlign: 'center', border: '2px dashed #252836', color: '#8A94A6',
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '24px' }}>{"\uD83C\uDFE2"}</div>
-              <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#21C19A', marginBottom: '12px' }}>COMING SOON</div>
-              <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#F2F5FA', marginBottom: '12px' }}>Enterprise Impact Assessment</h2>
-              <p style={{ fontSize: '14px', color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
-                A comprehensive ROI calculator for large-scale Devin deployments, including custom integrations, security compliance, and organization-wide impact projections.
-              </p>
-              <a
-                href="https://devin.ai/enterprise"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
-                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '12px 28px',
-                  textDecoration: 'none', transition: 'background-color 0.2s ease',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
-              >
-                Contact Sales
-              </a>
-            </div>
-          </section>
-        )}
+        {/* ENTERPRISE FLOW */}
+        <div style={{ display: selectedPersona === 'enterprise' ? 'block' : 'none' }}>
+          <EnterpriseFlow />
+        </div>
 
         {/* TEAM MANAGER FLOW */}
         <div style={{ display: selectedPersona === 'team' ? 'block' : 'none' }}>
