@@ -240,40 +240,16 @@ const PERSONA_CARDS = [
 ]
 
 const TRUST_PILLS = {
-  individual: ['Based on real workflows', 'Conservative estimates', '$9/hr effective cost'],
+  individual: ['4x faster task completion', '$9/hr effective cost', '85% PR merge rate', 'Pay as you go'],
   team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
-  enterprise: ['Fortune 500 ready', 'SOC 2 compliant', 'Custom deployment'],
+  enterprise: ['SOC 2 Type II', 'VPC deployment', 'SAML SSO', 'Used by Nubank, Itaú, Ramp'],
 }
 
-function PersonaSelector({ selectedPersona, setSelectedPersona }) {
-  return (
-    <section style={{ backgroundColor: '#10131C', padding: '40px 24px 0', textAlign: 'center' }}>
-      <div style={{
-        display: 'inline-flex', gap: '8px', backgroundColor: '#181B28',
-        border: '1px solid #252836', borderRadius: '999px', padding: '4px',
-      }}>
-        {PERSONA_CARDS.map(p => (
-          <button
-            key={p.id}
-            onClick={() => setSelectedPersona(p.id)}
-            style={{
-              padding: '10px 24px', borderRadius: '999px', fontSize: '14px',
-              fontWeight: selectedPersona === p.id ? 500 : 400, border: 'none', cursor: 'pointer',
-              backgroundColor: selectedPersona === p.id ? '#21C19A' : 'transparent',
-              color: selectedPersona === p.id ? '#10131C' : '#8A94A6',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {p.emoji} {p.title}
-          </button>
-        ))}
-      </div>
-    </section>
-  )
-}
 
 function App() {
   const [selectedPersona, setSelectedPersona] = useState(null)
+  const heroCardsRef = useRef(null)
+  const [showStickyBar, setShowStickyBar] = useState(false)
   const [engineers, setEngineers] = useState(25)
   const [cost, setCost] = useState('$150K\u2013$175K')
   const [backlog, setBacklog] = useState(150)
@@ -288,6 +264,16 @@ function App() {
     }
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  useEffect(() => {
+    if (!heroCardsRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(heroCardsRef.current)
+    return () => observer.disconnect()
   }, [])
 
   const handleTimeChange = useCallback((index, value) => {
@@ -335,7 +321,7 @@ function App() {
             </p>
 
             {/* Persona Cards */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+            <div ref={heroCardsRef} style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
               {PERSONA_CARDS.map(card => {
                 const isSelected = selectedPersona === card.id
                 const hasSelection = selectedPersona !== null
@@ -404,8 +390,53 @@ function App() {
         {/* ZONE 2: STATS TICKER */}
         <StatsTicker />
 
-        {/* PERSONA SELECTOR */}
-        <PersonaSelector selectedPersona={selectedPersona} setSelectedPersona={setSelectedPersona} />
+        {/* PERSONA SELECTOR - STICKY BAR */}
+        <div style={{ height: '48px' }} />
+
+        <div style={{
+          position: 'fixed',
+          top: '56px',
+          left: 0,
+          right: 0,
+          zIndex: 45,
+          backgroundColor: 'rgba(16, 19, 28, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #252836',
+          padding: '10px 0',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '8px',
+          opacity: showStickyBar ? 1 : 0,
+          pointerEvents: showStickyBar ? 'auto' : 'none',
+          transition: 'opacity 0.2s ease',
+        }}>
+          {[
+            { id: 'individual', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB', label: 'Individual' },
+            { id: 'team', emoji: '\uD83D\uDC65', label: 'Team' },
+            { id: 'enterprise', emoji: '\uD83C\uDFE2', label: 'Enterprise' },
+          ].map(p => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPersona(p.id)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '999px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                border: selectedPersona === p.id ? '1px solid #21C19A' : '1px solid #252836',
+                backgroundColor: selectedPersona === p.id ? '#21C19A' : 'transparent',
+                color: selectedPersona === p.id ? '#10131C' : '#8A94A6',
+                fontWeight: selectedPersona === p.id ? 500 : 400,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => { if (selectedPersona !== p.id) { e.currentTarget.style.borderColor = '#363A4D'; e.currentTarget.style.color = '#F2F5FA' } }}
+              onMouseLeave={(e) => { if (selectedPersona !== p.id) { e.currentTarget.style.borderColor = '#252836'; e.currentTarget.style.color = '#8A94A6' } }}
+            >
+              {p.emoji} {p.label}
+            </button>
+          ))}
+        </div>
 
         {/* INDIVIDUAL DEVELOPER FLOW */}
         <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
@@ -569,6 +600,29 @@ function App() {
         )}
 
         </div>{/* END TEAM MANAGER FLOW */}
+
+        {selectedPersona === null && (
+          <section style={{
+            backgroundColor: '#10131C',
+            padding: '120px 24px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              maxWidth: '500px',
+              margin: '0 auto',
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>{"\uD83D\uDC46"}</div>
+              <p style={{
+                fontSize: '18px',
+                fontWeight: 400,
+                color: '#555E70',
+                lineHeight: 1.6,
+              }}>
+                Select your role above to see your personalized impact report
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* ZONE 8: CTA + FOOTER */}
         <section className="zone-cta">
