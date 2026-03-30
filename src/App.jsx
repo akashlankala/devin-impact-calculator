@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import './App.css'
 import ImpactDashboard from './ImpactDashboard'
+import IndividualFlow from './IndividualFlow'
+import EnterpriseFlow from './EnterpriseFlow'
 
 const CHALLENGE_DEFAULTS = {
   migrations: [30, 15, 10, 10, 10, 25],
@@ -232,7 +234,23 @@ function RingChart({ percent }) {
   )
 }
 
+const PERSONA_CARDS = [
+  { id: 'individual', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB', title: 'Individual Developer', subtitle: 'Ship faster with an AI teammate', price: 'Core \u00B7 from $20' },
+  { id: 'team', emoji: '\uD83D\uDC65', title: 'Team Manager', subtitle: 'Justify Devin for your team with real ROI', price: 'Team \u00B7 $500/mo' },
+  { id: 'enterprise', emoji: '\uD83C\uDFE2', title: 'Enterprise Leader', subtitle: 'Evaluate Devin across your organization', price: 'Enterprise \u00B7 Custom pricing' },
+]
+
+const TRUST_PILLS = {
+  individual: ['4x faster task completion', '$9/hr effective cost', '85% PR merge rate', 'Pay as you go'],
+  team: ['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'],
+  enterprise: ['SOC 2 Type II', 'VPC deployment', 'SAML SSO', 'Used by Nubank, Itaú, Ramp'],
+}
+
+
 function App() {
+  const [selectedPersona, setSelectedPersona] = useState(null)
+  const heroCardsRef = useRef(null)
+  const [showStickyBar, setShowStickyBar] = useState(false)
   const [engineers, setEngineers] = useState(25)
   const [cost, setCost] = useState('$150K\u2013$175K')
   const [backlog, setBacklog] = useState(150)
@@ -247,6 +265,16 @@ function App() {
     }
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  useEffect(() => {
+    if (!heroCardsRef.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(heroCardsRef.current)
+    return () => observer.disconnect()
   }, [])
 
   const handleTimeChange = useCallback((index, value) => {
@@ -267,9 +295,12 @@ function App() {
   const total = timeAllocation.reduce((sum, v) => sum + v, 0)
   const devinCanHelp = 100 - timeAllocation[5]
 
-  const scrollToConfigure = () => {
-    const el = document.getElementById('zone-configure')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  const scrollToContent = () => {
+    const ticker = document.querySelector('.zone-ticker')
+    if (ticker) {
+      const rect = ticker.getBoundingClientRect()
+      window.scrollTo({ top: window.scrollY + rect.bottom, behavior: 'smooth' })
+    }
   }
 
   return (
@@ -282,48 +313,144 @@ function App() {
 
         {/* ZONE 1: HERO */}
         <section className="zone-hero">
-          <div style={{ textAlign: 'center', maxWidth: '700px', padding: '0 24px' }}>
-            <div style={{
-              display: 'inline-block', backgroundColor: '#181B28', border: '1px solid #252836',
-              borderRadius: '999px', padding: '6px 16px', fontSize: '11px', textTransform: 'uppercase',
-              letterSpacing: '0.12em', color: '#8A94A6', marginBottom: '24px',
-            }}>
-              FOR ENGINEERING LEADERS
-            </div>
+          <div style={{ textAlign: 'center', maxWidth: '900px', padding: '0 24px' }}>
             <h1 style={{ fontSize: '56px', fontWeight: 400, color: '#F2F5FA', lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: '16px' }}>
               Devin <span className="gradient-text-blue-green">Impact</span>
             </h1>
             <p style={{ fontSize: '18px', fontWeight: 400, color: '#8A94A6', lineHeight: 1.6, marginBottom: '32px' }}>
-              See how much engineering time and budget Devin can give back to your team
+              See how Devin fits into your workflow &mdash; whether you&apos;re shipping code, managing a team, or leading an organization
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '40px' }}>
-              {['Based on Nubank data', 'Cognition case studies', 'Conservative estimates', 'Real-time calculations'].map(badge => (
-                <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
-                  {badge}
-                </span>
-              ))}
+
+            {/* Persona Cards */}
+            <div ref={heroCardsRef} style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+              {PERSONA_CARDS.map(card => {
+                const isSelected = selectedPersona === card.id
+                const hasSelection = selectedPersona !== null
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => setSelectedPersona(card.id)}
+                    style={{
+                      backgroundColor: '#181B28',
+                      border: `1px solid ${isSelected ? '#21C19A' : '#252836'}`,
+                      borderRadius: '16px',
+                      padding: '24px',
+                      cursor: 'pointer',
+                      flex: 1,
+                      textAlign: 'left',
+                      opacity: hasSelection && !isSelected ? 0.5 : 1,
+                      transform: hasSelection && !isSelected ? 'scale(0.97)' : 'scale(1)',
+                      boxShadow: isSelected ? '0 0 20px rgba(33, 193, 154, 0.1)' : 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <div style={{ fontSize: '24px', marginBottom: '12px' }}>{card.emoji}</div>
+                    <div style={{ fontSize: '15px', color: '#F2F5FA', marginBottom: '6px' }}>{card.title}</div>
+                    <div style={{ fontSize: '13px', color: '#8A94A6', lineHeight: 1.4, marginBottom: '12px' }}>{card.subtitle}</div>
+                    <div style={{ fontSize: '12px', color: '#555E70' }}>{card.price}</div>
+                  </div>
+                )
+              })}
             </div>
-            <button
-              onClick={scrollToConfigure}
-              className="cta-pulse"
-              style={{
-                display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
-                backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
-                border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '48px',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
-            >
-              Calculate your impact {'\u2193'}
-            </button>
-            <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
-              {'\u2228'}
-            </div>
+
+            {/* Trust pills based on selectedPersona */}
+            {selectedPersona && TRUST_PILLS[selectedPersona] && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
+                {TRUST_PILLS[selectedPersona].map(badge => (
+                  <span key={badge} style={{ border: '1px solid #252836', borderRadius: '999px', padding: '4px 14px', fontSize: '11px', color: '#8A94A6', background: 'transparent' }}>
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* CTA button - only when persona selected */}
+            {selectedPersona && (
+              <button
+                onClick={scrollToContent}
+                className="cta-pulse"
+                style={{
+                  display: 'inline-block', fontSize: '15px', fontWeight: 500, color: '#10131C',
+                  backgroundColor: '#21C19A', borderRadius: '999px', padding: '14px 32px',
+                  border: 'none', cursor: 'pointer', transition: 'background-color 0.2s ease', marginBottom: '24px',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1AA886' }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#21C19A' }}
+              >
+                Calculate your impact {'\u2193'}
+              </button>
+            )}
+            {selectedPersona && (
+              <div className="scroll-indicator" style={{ fontSize: '20px', color: '#555E70' }}>
+                {'\u2228'}
+              </div>
+            )}
           </div>
         </section>
 
         {/* ZONE 2: STATS TICKER */}
         <StatsTicker />
+
+        {/* PERSONA SELECTOR - STICKY BAR */}
+        <div style={{ height: '48px' }} />
+
+        <div style={{
+          position: 'fixed',
+          top: '56px',
+          left: 0,
+          right: 0,
+          zIndex: 45,
+          backgroundColor: 'rgba(16, 19, 28, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #252836',
+          padding: '10px 0',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '8px',
+          opacity: showStickyBar ? 1 : 0,
+          pointerEvents: showStickyBar ? 'auto' : 'none',
+          transition: 'opacity 0.2s ease',
+        }}>
+          {[
+            { id: 'individual', emoji: '\uD83D\uDC69\u200D\uD83D\uDCBB', label: 'Individual' },
+            { id: 'team', emoji: '\uD83D\uDC65', label: 'Team' },
+            { id: 'enterprise', emoji: '\uD83C\uDFE2', label: 'Enterprise' },
+          ].map(p => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPersona(p.id)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '999px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                border: selectedPersona === p.id ? '1px solid #21C19A' : '1px solid #252836',
+                backgroundColor: selectedPersona === p.id ? '#21C19A' : 'transparent',
+                color: selectedPersona === p.id ? '#10131C' : '#8A94A6',
+                fontWeight: selectedPersona === p.id ? 500 : 400,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => { if (selectedPersona !== p.id) { e.currentTarget.style.borderColor = '#363A4D'; e.currentTarget.style.color = '#F2F5FA' } }}
+              onMouseLeave={(e) => { if (selectedPersona !== p.id) { e.currentTarget.style.borderColor = '#252836'; e.currentTarget.style.color = '#8A94A6' } }}
+            >
+              {p.emoji} {p.label}
+            </button>
+          ))}
+        </div>
+
+        {/* INDIVIDUAL DEVELOPER FLOW */}
+        <div style={{ display: selectedPersona === 'individual' ? 'block' : 'none' }}>
+          <IndividualFlow />
+        </div>
+
+        {/* ENTERPRISE FLOW */}
+        <div style={{ display: selectedPersona === 'enterprise' ? 'block' : 'none' }}>
+          <EnterpriseFlow />
+        </div>
+
+        {/* TEAM MANAGER FLOW */}
+        <div style={{ display: selectedPersona === 'team' ? 'block' : 'none' }}>
 
         {/* ZONE 3: CONFIGURE YOUR TEAM */}
         <section className="zone-configure" id="zone-configure">
@@ -443,6 +570,31 @@ function App() {
           <section className="zone-results">
             <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '48px 32px', borderRadius: '16px', textAlign: 'center', border: '2px dashed #252836', color: '#8A94A6' }}>
               <p style={{ fontSize: '16px', fontWeight: 400 }}>Adjust your time allocation to total 100% to see your impact report</p>
+            </div>
+          </section>
+        )}
+
+        </div>{/* END TEAM MANAGER FLOW */}
+
+        {selectedPersona === null && (
+          <section style={{
+            backgroundColor: '#10131C',
+            padding: '120px 24px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              maxWidth: '500px',
+              margin: '0 auto',
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>{"\uD83D\uDC46"}</div>
+              <p style={{
+                fontSize: '18px',
+                fontWeight: 400,
+                color: '#555E70',
+                lineHeight: 1.6,
+              }}>
+                Select your role above to see your personalized impact report
+              </p>
             </div>
           </section>
         )}
